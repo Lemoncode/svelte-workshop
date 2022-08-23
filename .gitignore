@@ -1,0 +1,39 @@
+# Common aux folders
+.awcache/
+.idea/
+.cache/
+.sonarlint/
+
+# Dependencies & Build
+node_modules/
+dist/
+build-dev/
+build-prod/
+junit.xml
+
+# npmrc
+.npmrc
+
+# Testing
+/jest-coverage
+/reports
+
+# Aux files
+*.cer
+*.log
+*/src/**/*.orig
+*/src/**/*.js.map
+
+# Win
+desktop.ini
+
+# MacOs
+.DS_Store
+
+
+# Svelte get started
+/**/*/public/build
+/**/*/.DS_Store
+/**/*/build.*
+public/assets/*
+public/build/*
