@@ -37,7 +37,7 @@ export interface Order {
 export const createNewItem = (): Item => ({
   name: "",
   quantity: 1,
-  price: 0,
+  price: 20,
 });
 ```
 
@@ -123,8 +123,7 @@ _./src/order.svelte_
 + {/each}
 ```
 
-- If we run the example, we can check that the data is being shown although the layout looks a bit ugly,
-  let's add some styling, we will add a grid layout and create a header section.
+- If we run the example, we can check that the data is being shown although the layout looks a bit ugly, let's add some styling, we will add a grid layout and create a header section.
 
 _./src/order.svelte_
 
@@ -294,5 +293,7 @@ _./src/order.svelte_
 +
 +  $: total = subtotal + vat;
 ```
+
+- Now we can start adding items and check
 
 If you run the app, you can see how we can update any item in the list (or add, remove) and automatically all the calcs are updated.
