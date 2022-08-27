@@ -31,7 +31,7 @@ npm install
   - A second page that will display the user name and will let the user
     update it (and this change will get reflected throughout the application).
 
-- We are going to create a folder called _pages_ and create inside a login page,
+- We are going to create a folder called _pages_ under _src_ path and create inside a login page,
   a main page and a barrel:
 
 _./src/pages/login-page.svelte_
@@ -103,7 +103,7 @@ _./src/pages/home-page.svelte_
 </style>
 ```
 
-_./src/pages/index.svelte_
+_./src/pages/index.ts_
 
 ```svelte
 export { default as LoginPage } from "./login-page.svelte";
@@ -145,6 +145,8 @@ npm install svelte-navigator --save
 ```
 
 Let's define the routes and the layout usage in our _App.svelte_
+
+_./src/App.svelte_
 
 ```svelte
 <script lang="ts">
