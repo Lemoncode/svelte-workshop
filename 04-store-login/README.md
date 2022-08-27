@@ -16,20 +16,190 @@ Let's start by learning how _stores_ work: in this example we will learn how to 
 
 # Step By Step Guide
 
-- Let's copy the starting point (sibling project) 00-start, and install
-  the needed packages:
+- This example will take a starting point _00-scratch-typescript_
+
+- Let's install the packages.
 
 ```bash
 npm install
 ```
 
-- Let's start the project and do a quick tour over it:
+- Now we are going to create a classical scenario:
+
+  - A login page.
+  - A Navbar layout showing the name of the user logged in.
+  - A second page that will display the user name and will let the user
+    update it (and this change will get reflected throughout the application).
+
+- We are going to create a folder called _pages_ and create inside a login page,
+  a main page and a barrel:
+
+_./src/pages/login-page.svelte_
+
+```svelte
+<script lang="ts">
+  let username = "Mr. Nobody";
+</script>
+
+<div class="root">
+  <h1>Login Page</h1>
+  <input bind:value={username} />
+  <button on:click={() => console.log("It should navigate to home page")}>Login</button>
+</div>
+
+<style>
+  .root {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+  }
+  input {
+    width: 270px;
+    padding: 10px;
+  }
+  button {
+    width: 300px;
+  }
+</style>
+
+```
+
+_./src/pages/home-page.svelte_
+
+```svelte
+<script lang="ts">
+  let showLoggedInUser = false;
+</script>
+
+<div class="root">
+  <h1>Home page</h1>
+  <button
+    on:click={() => {
+      showLoggedInUser = !showLoggedInUser;
+    }}>Show Logged in User</button
+  >
+  {#if showLoggedInUser}
+    <h2>Here we should show the logged in user</h2>
+  {/if}
+</div>
+
+<style>
+  .root {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+  }
+  input {
+    width: 270px;
+    padding: 10px;
+  }
+  button {
+    width: 300px;
+  }
+</style>
+```
+
+_./src/pages/index.svelte_
+
+```svelte
+export { default as LoginPage } from "./login-page.svelte";
+export { default as HomePage } from "./home-page.svelte";
+```
+
+- Let's create a navbar layout plus a barrel:
+
+_./src/common/navbar.svelte_
+
+```svelte
+<h2>User Logged in:</h2>
+
+<style>
+  h2 {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    padding: 20px 40px;
+    margin: 0;
+    box-sizing: border-box;
+    background-color: #ff5722;
+    color: white;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+  }
+</style>
+```
+
+_./src/common/index.ts_
+
+```svelte
+export { default as NavBar } from "./navbar.svelte";
+```
+
+Now we need a SPA router (like react-router), let's install _svelte-navigator_:
+
+```bash
+npm install svelte-navigator --save
+```
+
+Let's define the routes and the layout usage in our _App.svelte_
+
+```svelte
+<script lang="ts">
+  import { Router, Route } from "svelte-navigator";
+  import { NavBar } from "./common";
+  import { HomePage, LoginPage } from "./pages";
+</script>
+
+<main>
+    <Router>
+      <NavBar />
+      <Route path="/">
+        <LoginPage />
+      </Route>
+      <Route path="home">
+        <HomePage />
+      </Route>
+    </Router>
+</main>
+
+<style>
+    main {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    flex-grow: 1;
+    }
+</style>
+```
+
+- And let's define the navigation behavior in our _login-page_
+
+_./src/pages/login-page.svelte_
+
+```diff
+<script lang="ts">
++  import { useNavigate } from "svelte-navigator";
++  const navigate = useNavigate();
+  let username = "Mr. Nobody";
+</script>
+
+<div class="root">
+  <h1>Login Page</h1>
+  <input bind:value={username} />
+-  <button on:click={() => console.log("It should navigate to home page")}>Login</button>
++  <button on:click={() => navigate("home")}>Login</button>
+</div>
+```
+
+- Let's give a try to what we have created:
 
 ```bash
 npm run dev
 ```
 
-- We can see two pages:
+- Let's recap, we can see two pages:
 
   - Login page.
   - Home page.
@@ -48,7 +218,7 @@ The userInformation should be globally accesible, so we don't need to pass it ar
 
 It seems like a good idea to use a _writable store_ to share the data.
 
-Let's get started:
+Let's go for it:
 
 - First we will create the store, we could just store a simple string, but in this
   case we will store an object, so we can check the difference between replacing
