@@ -34,7 +34,7 @@ _./src/name-component/model.ts_
 
 ```ts
 export interface UserEntity {
-  username : string;
+  username: string;
 }
 ```
 
@@ -48,7 +48,7 @@ export interface UserEntity {
 _./src/name-component/user.store.ts_
 
 ```ts
-import type {UserEntity} from './model';
+import type { UserEntity } from "./model";
 import { writable } from "svelte/store";
 
 export const userInfoStore = writable<UserEntity>({
@@ -236,7 +236,7 @@ _./src/name-component/name-component.svelte_
 <script lang="ts">
   import type {UserEntity} from './model';
   import { setContext } from "svelte";
-+ import type { Writable } from 'svelte/store';  
++ import type { Writable } from 'svelte/store';
 + import {writable} from 'svelte/store';
   import NameDisplay from "./name-display.svelte";
   import NameEdit from "./name-edit.svelte";
@@ -261,7 +261,7 @@ _./src/name-component/name-display.svelte_
 ```diff
 <script lang="ts">
 + import type {UserEntity} from './model';
-+ import type { Writable } from 'svelte/store'; 
++ import type { Writable } from 'svelte/store';
   import { getContext, setContext } from "svelte";
 -  import { userInfoStore } from "./user.store";
 
@@ -282,7 +282,7 @@ _./src/name-component/name-edit.svelte_
 
 ```diff
 <script lang="ts">
-+ import type { Writable } from 'svelte/store'; 
++ import type { Writable } from 'svelte/store';
   import { getContext, setContext } from "svelte";
 
 -  const userInfo: any = getContext("userInfoStore");
@@ -316,7 +316,7 @@ _./src/name-component/user-info.provider.svelte_
 
 ```svelte
 <script lang="ts">
-  import type { Writable } from 'svelte/store'; 
+  import type { Writable } from "svelte/store";
   import { setContext } from "svelte";
   import { writable } from "svelte/store";
   import type { UserEntity } from "./model";
@@ -387,3 +387,48 @@ _./src/App.svelte_
 
 Now you can give a try and enclose the second _NameComponent_ inside the
 first _userInfoProvider_
+
+- Let's do a final refactor, we have enclosed the instantiation of the
+  _userInfoStore_ inside of the provider, we could just enclose it in the
+  _user.store_ but if we want to avoid any other part of the app to access
+  the same instantiated store we could just move to our _user.store.ts_
+  but use a factory function instead:
+
+_./user.store.ts_
+
+```diff
+import type { UserEntity } from "./model";
+import { writable } from "svelte/store";
+
+- export const userInfoStore = writable<UserEntity>({
+-  username: "default user",
+- });
+
++ export const createUserInfoStore = () => writable<UserEntity>({
++    username: "Seed name " + Math.random(),
++  });
+```
+
+_./user-info.provider.svelte_
+
+```diff
+<script lang="ts">
+  import type { Writable } from 'svelte/store';
+  import { setContext } from "svelte";
+-  import { writable } from "svelte/store";
+  import type { UserEntity } from "./model";
++ import { createUserInfoStore } from "./user.store";
+
+-  const userInfoStore = writable<UserEntity>({
+-    username: "Seed name " + Math.random(),
+-  });
+
++  const userInfoStore = createUserInfoStore();
+
+  setContext<Writable<UserEntity>>("userInfoStore", userInfoStore);
+</script>
+
+<slot />
+```
+
+Do you think is worth this refactor? (Debate :))

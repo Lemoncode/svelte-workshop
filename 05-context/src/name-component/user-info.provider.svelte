@@ -1,12 +1,10 @@
 <script lang="ts">
   import type { Writable } from 'svelte/store'; 
   import { setContext } from "svelte";
-  import { writable } from "svelte/store";
   import type { UserEntity } from "./model";
+  import { createUserInfoStore } from "./user.store";
 
-  const userInfoStore = writable<UserEntity>({
-    username: "Seed name " + Math.random(),
-  });
+  const userInfoStore = createUserInfoStore();
 
   setContext<Writable<UserEntity>>("userInfoStore", userInfoStore);
 </script>

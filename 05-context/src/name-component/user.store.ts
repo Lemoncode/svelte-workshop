@@ -1,6 +1,7 @@
 import type { UserEntity } from "./model";
 import { writable } from "svelte/store";
 
-export const userInfoStore = writable<UserEntity>({
-  username: "default user",
-});
+export const createUserInfoStore = () =>
+  writable<UserEntity>({
+    username: "Seed name " + Math.random(),
+  });
