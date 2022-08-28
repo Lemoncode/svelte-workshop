@@ -1,9 +1,13 @@
 <script lang="ts">
-  import { NameComponent } from "./name-component";
+  import { NameComponent, UserInfoProvider } from "./name-component";
 </script>
 
 <main>
   <h1>Context Demo</h1>
-  <NameComponent />
-  <NameComponent />
+  <UserInfoProvider>
+    <NameComponent />
+  </UserInfoProvider> 
+  <UserInfoProvider>
+    <NameComponent />
+  </UserInfoProvider> 
 </main>

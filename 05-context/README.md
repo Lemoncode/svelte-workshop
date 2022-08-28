@@ -316,15 +316,16 @@ _./src/name-component/user-info.provider.svelte_
 
 ```svelte
 <script lang="ts">
+  import type { Writable } from 'svelte/store'; 
   import { setContext } from "svelte";
   import { writable } from "svelte/store";
-  import type { UserInfo } from "./model";
+  import type { UserEntity } from "./model";
 
-  const userInfoStore = writable<UserInfo>({
+  const userInfoStore = writable<UserEntity>({
     username: "Seed name " + Math.random(),
   });
 
-  setContext("userInfoStore", userInfoStore);
+  setContext<Writable<UserEntity>>("userInfoStore", userInfoStore);
 </script>
 
 <slot />
@@ -336,9 +337,10 @@ _./src/name-component/name-component.svelte_
 
 ```diff
 <script lang="ts">
+-  import type {UserEntity} from './model';
+-  import type { Writable } from 'svelte/store';
 -  import { setContext } from "svelte";
 -  import {writable} from 'svelte/store';
--  import type {UserInfo} from './model';
   import NameDisplay from "./name-display.svelte";
   import NameEdit from "./name-edit.svelte";
 
