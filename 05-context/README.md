@@ -234,16 +234,18 @@ _./src/name-component/name-component.svelte_
 
 ```diff
 <script lang="ts">
+  import type {UserEntity} from './model';
   import { setContext } from "svelte";
++ import type { Writable } from 'svelte/store';  
 + import {writable} from 'svelte/store';
   import NameDisplay from "./name-display.svelte";
   import NameEdit from "./name-edit.svelte";
 
-+ const userInfoStore = writable({
++ const userInfoStore = writable<UserEntity>({
 +   username: `Seed name:  ${Math.random()}`,
 + });
 
-+ setContext("userInfoStore", userInfoStore);
++ setContext<Writable<UserEntity>>("userInfoStore", userInfoStore);
 
 -  setContext("userInfoStore", {
 -    username: "Seed name " + Math.random(),
@@ -258,11 +260,13 @@ _./src/name-component/name-display.svelte_
 
 ```diff
 <script lang="ts">
-   import { getContext, setContext } from "svelte";
-  import { userInfoStore } from "./user.store";
++ import type {UserEntity} from './model';
++ import type { Writable } from 'svelte/store'; 
+  import { getContext, setContext } from "svelte";
+-  import { userInfoStore } from "./user.store";
 
 -  const userInfo: any = getContext("userInfoStore");
-+  const userInfoStore: any = getContext("userInfoStore");
++  const userInfoStore: any = getContext<Writable<UserEntity>>("userInfoStore");
 
 </script>
 
@@ -278,10 +282,11 @@ _./src/name-component/name-edit.svelte_
 
 ```diff
 <script lang="ts">
++ import type { Writable } from 'svelte/store'; 
   import { getContext, setContext } from "svelte";
 
 -  const userInfo: any = getContext("userInfoStore");
-+  const userInfoStore: any = getContext("userInfoStore");
++  const userInfoStore: any = getContext<Writable<UserEntity>>("userInfoStore");
 </script>
 
 + <input bind:value={$userInfoStore.username}>
@@ -300,67 +305,6 @@ _./src/name-component/name-edit.svelte_
 
 ```bash
 npm run dev
-```
-
-- That was fine but if we come from a TypeScript background we are missing
-  strong typing, let's add some types to this :)
-
-- First we are going to define our _UserInfo_ interface.
-
-_./src/name-component/model.ts_
-
-```typescript
-export interface UserInfo {
-  username: string;
-}
-```
-
-Now let's add some strong typing to our Context:
-
-_./src/name-component/name-component.svelte_
-
-```diff
-  import { setContext } from "svelte";
-  import {writable} from 'svelte/store';
-+ import type {UserInfo} from './model';
-
--  const userInfoStore = writable({
-+  const userInfoStore = writable<UserInfo>({
-   username: "Seed name" + Math.random(),
- });
-```
-
-Let's use it on every _getContext_ call:
-
-_./src/name-component/name-display.svelte_
-
-```diff
-<script lang="ts">
-  import { getContext, setContext } from "svelte";
-+ import type { Writable } from "svelte/store";
-+ import type {UserInfo} from './model';
-
--  const userInfoStore: any = getContext("userInfoStore");
-+  const userInfoStore = getContext<Writable<UserInfo>>("userInfoStore");
-
-</script>
-
-<h3>Username: {$userInfoStore.username}</h3>
-```
-
-_./src/name-component/name-edit.svelte_
-
-```diff
-<script lang="ts">
-  import { getContext, setContext } from "svelte";
-+ import type { Writable } from "svelte/store";
-+ import type {UserInfo} from './model';
-
--  const userInfoStore: any = getContext("userInfoStore");
-+  const userInfoStore = getContext<Writable<UserInfo>>("userInfoStore");
-</script>
-
-<input bind:value={$userInfoStore.username} />
 ```
 
 - Now have coupled our root component _name_ component with the context

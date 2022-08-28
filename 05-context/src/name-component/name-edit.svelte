@@ -1,15 +1,9 @@
 <script lang="ts">
   import type {UserEntity} from './model';
+  import type { Writable } from 'svelte/store'; 
   import { getContext, setContext } from "svelte";
 
-  let userInfo = getContext<UserEntity>("userInfoStore");
+  const userInfoStore: any = getContext<Writable<UserEntity>>("userInfoStore");
 </script>
 
- <input
-  bind:value={userInfo.username}
-  on:input={(e) =>
-    setContext("userInfoStore", {
-      ...userInfo,
-      username: e.currentTarget.value,
-    })}
- />
+<input bind:value={$userInfoStore.username}>

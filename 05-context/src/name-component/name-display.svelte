@@ -1,9 +1,9 @@
 <script lang="ts">
   import type {UserEntity} from './model';
+  import type { Writable } from 'svelte/store';
   import { getContext, setContext } from "svelte";
-  import { userInfoStore } from "./user.store";
 
-  const userInfo = getContext<UserEntity>("userInfoStore");
+  const userInfoStore = getContext<Writable<UserEntity>>("userInfoStore");
 </script>
 
-<h3>Username: {userInfo.username}</h3>
+<h3>Username: {$userInfoStore.username}</h3>
