@@ -10,9 +10,7 @@
 npm install
 ```
 
-- Boiler simple ts and simple svelte component
-
-- A pure logic function (no markup):
+- Let's create a plain vanilla function (no markup):
 
 _./greet.business.ts_
 
@@ -21,6 +19,8 @@ export const greetSomebody = (dude: string): string => {
   return `Hello ${dude}!`;
 };
 ```
+
+- And let's create a simple component
 
 _./greet.svelte_
 
@@ -61,7 +61,7 @@ describe("greet business", () => {
 });
 ```
 
-- If we copy this, type definitios are missing, lets install the Jest one
+- If we copy this, type definitions are missing, lets install the Jest one
   (yups, vitest syntax is compatible with Jest :)).
 
 ```bash
@@ -157,10 +157,10 @@ npm run coverage
 
 If we try to use it, we will get an error:
 
-Let's install testing library and testing library jest dom
+Let's install testing library:
 
 ```bash
-npm i -D @testing-library/svelte @testing-library/jest-dom
+npm i -D @testing-library/svelte
 ```
 
 _./src/greet.spec.ts_
@@ -199,7 +199,7 @@ _./vite.config.ts_
 ```diff
 const vitestConfig: VitestUserConfigInterface = {
   test: {
-+    globals: true,
+    globals: true,
 +    environment: "jsdom",
   },
 
@@ -212,7 +212,13 @@ export default defineConfig({
 });
 ```
 
-- Hurra ! We get a new error! :-@: _Error: Invalid Chai property: toBeInTheDocument_
+- Let's run the tests again
+
+```bash
+npm run test
+```
+
+- Hurra ! We got a new error! :-@: _Error: Invalid Chai property: toBeInTheDocument_
 
 We are using Jest matchers not chai, we need to add some extra config
 to get this working.
