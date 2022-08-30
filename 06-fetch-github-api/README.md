@@ -20,7 +20,7 @@ We will use three approaches:
 npm install
 ```
 
-- Let's create a _github-member-list_ folder.
+- Let's create a _github-list_ folder.
 
 - We will query the github api to retrieve the members of a given organization,
   in order to do that we will create a model and a separate api file:
@@ -144,7 +144,7 @@ _./src/App.svelte_
 npm run dev
 ```
 
-- So far so good, but this approach does not cover more complex scenario,
+- So far so good, but this approach does not cover more complex scenarios,
   for instance what if we just add an input to change the organization name
   and a button to trigger the search? In this case we can make of the builtin Svelte lifecycle for components.
 
@@ -180,6 +180,7 @@ _./src/components/github-list/github-list.svelte_
 +  const loadMembers = (organizationName) => {
 +    membersPromise = fetchGithubMembers(organizationName).then((result) => {
 +      members = result;
++      return result;
 +    });
 +  };
 </script>
@@ -237,7 +238,7 @@ _./src/components/github-list/github-list.svelte_
 ```diff
 <input bind:value={organizationName} />
 - <button>Search</button>
-+ <button on:click={() => loadMembers(organizationName)} }>Search</button>
++ <button on:click={() => loadMembers(organizationName)}>Search</button>
 ```
 
 - Now you can just try entering in the input organization names like
