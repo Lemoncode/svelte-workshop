@@ -2,11 +2,11 @@
   import { fetchGithubMembers } from "./github.api";
   import type { GithubMember } from "./model";
   import { onMount } from "svelte";
-  import { createGithubMembersStore } from "./github-list.store";
+  import { getMembersContext } from "./github-list.store";
 
   let organizationName = "lemoncode";
 
-  const membersStore = createGithubMembersStore();
+  const membersStore = getMembersContext();
 
   onMount(() => {
     membersStore.loadMembers(organizationName);

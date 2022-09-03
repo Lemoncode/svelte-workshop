@@ -357,12 +357,107 @@ _./src/components/github-list.svelte_
 - {/await}
 ```
 
+> Note: Catch left of as a lab
+
+- That's great, but in some case we may need this data available in other
+  pages, we don't need to decide right now that this data will just live
+  inside the github-list svelte component, why not create a context and
+  expose it via a provider?
+
+- This time we are going to setup a unique identifier for the context.
+
+```bash
+npm install uuid -P
+```
+
+_./src/components/github-list/github-list.store.ts_
+
+```diff
+import { writable } from "svelte/store";
++ import { setContext, getContext } from "svelte";
++ import {v4 as uuidv4} from 'uuid';
+// (...)
+
+- export type MembersStore = ReturnType<typeof createGithubMembersStore>;
+
++ // Another option: https://github.com/rozek/locally-unique-id-generator/blob/main/README.md
++ const membersContextUID = uuidv4();
++
++ export const setMembersContext = (membersStore: MembersStore) =>
++  setContext(membersContextUID, membersStore);
+
++ export const getMembersContext = () => getContext<MembersStore> (membersContextUID);
+```
+
+- Ok, now that we have this define we can setup the context in a
+  provider:
+
+_./src/components/github-list/github-list.provider.svelte_
+
+```svelte
+<script lang="ts">
+  import { setContext } from "svelte";
+  import {
+    createGithubMembersStore,
+    setMembersContext,
+  } from "./github-list.store";
+
+  const membersStore = createGithubMembersStore();
+  setMembersContext(membersStore);
+</script>
+
+<slot />
+```
+
+- Add it to our barrel:
+
+_./src/components/github-list/index.ts_
+
+```diff
+export { default as GithubMemberList } from "./github-list.svelte";
++ export { default as GithubMemberListProvider } from "./github-list.provider.svelte";
+```
+
+- Wrap the components (or components in the context):
+
+_./src/App.svelte_
+
+```diff
+<script lang="ts">
+-  import { GithubMemberList } from "./components/github-list";
++  import { GithubMemberList, GithubMemberListProvider } from "./components/github-list";
+</script>
+
++ <GithubMemberListProvider>
+    <GithubMemberList />
++ </GithubMemberListProvider>
+```
+
+- And let's use this context in our component:
+
+_./src/components/github-list/github-list.svelte_
+
+```diff
+<script lang="ts">
+  import { fetchGithubMembers } from "./github.api";
+  import type { GithubMember } from "./model";
+  import { onMount } from "svelte";
+-  import { createGithubMembersStore } from "./github-list.store";
++  import { getMembersContext } from './github-list.store';
+
+  let organizationName = "lemoncode";
+
+-  const membersStore = createGithubMembersStore();
++  const membersStore = getMembersContext();
+```
+
 Some Labs:
 
 - Catch hasn't been implemented, try to implement it.
 
+- Let's try to simplify the _github-list.svelte_ and move
+  the _onMount_ implementation to the _provider_
+
 - What if you enter an organization name that does not exist? How could
   you handle this scenario? Just take a look at what the api returns and
   handle this error, do you want to vie a try by yourself?
-
-Extra

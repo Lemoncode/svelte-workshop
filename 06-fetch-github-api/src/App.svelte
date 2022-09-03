@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { GithubMemberList } from "./components/github-list";
+  import {
+    GithubMemberList,
+    GithubMemberListProvider,
+  } from "./components/github-list";
 </script>
 
-<GithubMemberList />
+<GithubMemberListProvider>
+  <GithubMemberList />
+</GithubMemberListProvider>
