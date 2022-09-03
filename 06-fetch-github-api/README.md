@@ -250,7 +250,7 @@ npm run dev
 
 - [Refactor] [Time Permitting] Right now we had implemented this in
   a vary traditional way, if we were working with React we could think
-  about extracting some of this functionallity into a custom hook, let's
+  about extracting some of this functionality into a custom hook, let's
   see how to do this in Svelte using stores and context.
 
 - First of all we can try to isolate the members handling into a
@@ -380,7 +380,6 @@ import { writable } from "svelte/store";
 
 - export type MembersStore = ReturnType<typeof createGithubMembersStore>;
 
-+ // Another option: https://github.com/rozek/locally-unique-id-generator/blob/main/README.md
 + const membersContextUID = uuidv4();
 +
 + export const setMembersContext = (membersStore: MembersStore) =>
