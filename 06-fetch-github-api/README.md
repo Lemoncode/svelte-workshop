@@ -248,14 +248,121 @@ _./src/components/github-list/github-list.svelte_
 npm run dev
 ```
 
+- [Refactor] [Time Permitting] Right now we had implemented this in
+  a vary traditional way, if we were working with React we could think
+  about extracting some of this functionallity into a custom hook, let's
+  see how to do this in Svelte using stores and context.
+
+- First of all we can try to isolate the members handling into a
+  store:
+  - We will create a factory function that will return:
+    - A writable store that will hold a writable store including
+      the list of github members.
+    - A method load the member list onto the store (passing as param
+      the organization name).
+    - Then we will return the store subscribe method and the loadMembers.
+    - The loading promise (just to comply with the component await, later
+      on we could refactor this)
+
+_./src/components/github-list/github-list.store.ts_
+
+```ts
+import { writable } from "svelte/store";
+import { fetchGithubMembers } from "./github.api";
+import type { GithubMember } from "./model";
+
+export const createGithubMembersStore = () => {
+  const { set, subscribe, update } = writable<GithubMember[]>([]);
+  let isLoading = false;
+
+  const loadMembers = (organizationName) => {
+    isLoading = true;
+    fetchGithubMembers(organizationName)
+      .then((result) => {
+        isLoading = false;
+        set(result);
+      })
+      .catch((error) => {
+        isLoading = false;
+        set([]);
+      });
+  };
+
+  return { subscribe, loadMembers, isLoading };
+};
+
+export type MembersStore = ReturnType<typeof createGithubMembersStore>;
+```
+
+- Now that we have this entry we can directly use it in our component:
+
+_./src/components/github-list.svelte_
+
+```diff
+<script lang="ts">
+  import { fetchGithubMembers } from "./github.api";
+  import type { GithubMember } from "./model";
+  import { onMount } from "svelte";
++ import { createGithubMembersStore } from "./github-list.store";
+
+  let organizationName = "lemoncode";
+-  let members: GithubMember[] = [];
+-  let membersPromise: Promise<GithubMember[]> = new Promise<GithubMember[]>(
+-    (resolve) => resolve([])
+-  );
+
+-  const loadMembers = (organizationName) => {
+-    membersPromise = fetchGithubMembers(organizationName).then((result) => {
+-      members = result;
+-      return result;
+-    });
+-  };
+
++   const membersStore =  createGithubMembersStore();
+
+
+  onMount(() => {
+-    loadMembers(organizationName);
++      membersStore.loadMembers(organizationName);
+  });
+</script>
+
+<h3>Member List</h3>
+
+<input bind:value={organizationName} />
+-<button on:click={() => loadMembers(organizationName)}>Search</button>
++<button on:click={() => membersStore.loadMembers(organizationName)}>Search</button>
+
+
+-{#await membersPromise}
++{#if membersStore.isLoading}
+  <p>...loading</p>
+-{:then members}
++ {:else}
+  <div class="container">
+    <span class="header">Avatar</span>
+    <span class="header">Id</span>
+    <span class="header">Name</span>
+-    {#each members as member}
++    {#each $membersStore as member}
+
+      <img src={member.avatar_url} alt={`${member.login} picture`} />
+      <span>{member.id}</span>
+      <span>{member.login}</span>
+    {/each}
+  </div>
++ {/if}
+- {:catch error}
+-  <p>An error occurred!</p>
+- {/await}
+```
+
 Some Labs:
+
+- Catch hasn't been implemented, try to implement it.
 
 - What if you enter an organization name that does not exist? How could
   you handle this scenario? Just take a look at what the api returns and
   handle this error, do you want to vie a try by yourself?
 
 Extra
-
-- What if you have a complex component that will break down into smaller
-  components? In some cases drilling down a give property could be cumbersome,
-  for this cases we could wrap this in a provider and use the _getContext_ function.

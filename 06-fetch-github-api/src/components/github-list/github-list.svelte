@@ -2,46 +2,38 @@
   import { fetchGithubMembers } from "./github.api";
   import type { GithubMember } from "./model";
   import { onMount } from "svelte";
+  import { createGithubMembersStore } from "./github-list.store";
 
   let organizationName = "lemoncode";
-  let members: GithubMember[] = [];
-  let membersPromise: Promise<GithubMember[]> = new Promise<GithubMember[]>(
-    (resolve) => resolve([])
-  );
 
-  const loadMembers = (organizationName) => {
-    membersPromise = fetchGithubMembers(organizationName).then((result) => {
-      members = result;
-      return result;
-    });
-  };
+  const membersStore = createGithubMembersStore();
 
   onMount(() => {
-    loadMembers(organizationName);
+    membersStore.loadMembers(organizationName);
   });
 </script>
 
 <h3>Member List</h3>
 
 <input bind:value={organizationName} />
-<button on:click={() => loadMembers(organizationName)}>Search</button>
+<button on:click={() => membersStore.loadMembers(organizationName)}
+  >Search</button
+>
 
-{#await membersPromise}
+{#if membersStore.isLoading}
   <p>...loading</p>
-{:then members}
+{:else}
   <div class="container">
     <span class="header">Avatar</span>
     <span class="header">Id</span>
     <span class="header">Name</span>
-    {#each members as member}
+    {#each $membersStore as member}
       <img src={member.avatar_url} alt={`${member.login} picture`} />
       <span>{member.id}</span>
       <span>{member.login}</span>
     {/each}
   </div>
-{:catch error}
-  <p>An error occurred!</p>
-{/await}
+{/if}
 
 <style>
   .container {
