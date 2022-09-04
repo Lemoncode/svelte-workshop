@@ -15,5 +15,5 @@
   min="0"
   max="255"
   bind:value
-  on:input={(e) => dispatch('valuechange', {name: name, value: +e.currentTarget.value})}
+  on:input={(e) => dispatch("valuechange", { name, value: +e.currentTarget.value })}
 />

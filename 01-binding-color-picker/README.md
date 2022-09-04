@@ -4,15 +4,15 @@ In this example we will get started using properties and bindings.
 
 We will build a simple color picker control, we will:
 
-- Create a single componente that edit a single color componente.
-- A custom component that will group three single color componentes.
-- A colorBrowser that will display the color it self.
-- A colorPicker that will group all this components.
+- Create a single component that edit a single color.
+- Create a custom component that will group three single color components.
+- Create a component that will display the color it self.
+- Use all these components in our root component.
 
 # Step By Step Guide
 
-- This example takes as starting point _00-scratch-typescript_, let's
-  copy the project and execute an _npm install_
+- This example takes as starting point the project we created in _00-boiler-typescript_, let's
+  copy the project and execute an _npm install_ in there:
 
 ```bash
 npm install
@@ -22,22 +22,22 @@ npm install
   components.
 
 ```bash
-md color-picker
+md src/color-picker
 ```
 
-- Time to create a single color slider edit component, we will use
+- Time to create a single color slider editor component, we will use
   two way binding to bind the _value_ property with the input _value_
   property (this is ok to be used in a local scope, we could use
   the React approach well, one way + callback), things to take into consideration:
 
   - We define _props_ by _exporting_ them on the script area (check _export let name_
     and _export let value_
-  - One way binding works in a very similar was a with React (brackets)
+  - One-way binding works in a very similar way as with React (brackets)
   - We can decide here whether to use one way binding and hooking on change
-    like events or use two way binding (this can be ok meanwhile the binding is
+    like events or use two-way binding (this can be ok meanwhile the binding is
     contained in the same component scope).
 
-_./color-picker/single-color-editor.svelte_
+_./src/color-picker/single-color-editor.svelte_
 
 ```svelte
 <script lang="ts">
@@ -51,7 +51,7 @@ _./color-picker/single-color-editor.svelte_
 
 Now let's wipe the main app and let's test this component.
 
-_./App.svelte_
+_./src/App.svelte_
 
 ```svelte
 <script lang="ts">
@@ -66,26 +66,26 @@ _./App.svelte_
 ```
 
 If we give a try to this we can check that the slider gets updated _but the
-parent *red* value does not_, what's going on? Well if we are used to react
+parent *red* value does not_, what's going on? Well if we are used to React
 this could be pretty standard, the property is passed down as read only.
 
-What can we do? A possible solution is to use two way binding between
+What can we do? A possible solution is to use two-way binding between
 components, something like:
 
 _./src/App.svelte_
 
 ```diff
-<main class="root">
-  <SingleColorEditor
-    name="Red"
--    value={red}
-+    bind:value={red}
-  />
-  {red}
-</main>
+  <main class="root">
+    <SingleColorEditor
+      name="Red"
+-     value={red}
++     bind:value={red}
+    />
+    {red}
+  </main>
 ```
 
-** BAD SMELL **
+**BAD SMELL**
 
 Although this can look like a simple solution, it could lead us to issues in
 more complex scenarios, usually we will use two way binding in a local scope,
@@ -102,56 +102,56 @@ First let's roll back the two way binding previous update.
 _./src/App.svelte_
 
 ```diff
-<main class="root">
-  <SingleColorEditor
-    name="Red"
-+    value={red}
--    bind:value={red}
-  />
-  {red}
-</main>
+  <main class="root">
+    <SingleColorEditor
+      name="Red"
++     value={red}
+-     bind:value={red}
+    />
+    {red}
+  </main>
 ```
 
 And let's provide a callback property to the component:
 
-_./color-picker/single-color-editor.svelte_
+_./src/color-picker/single-color-editor.svelte_
 
 ```diff
-<script lang="ts">
- export let name = ""
- export let value= 0;
-+ export let onChange : (value: number) => void;
-</script>
+  <script lang="ts">
+    export let name = "";
+    export let value= 0;
++   export let onChange = (value: number) => {};
+  </script>
 
-<label for="color">{name}</label>
-<input id="color" type="range" min="0" max="255" bind:value
-+ on:input={(e) => onChange(+e.currentTarget.value)}
-/>
+  <label for="color">{name}</label>
+  <input id="color" type="range" min="0" max="255" bind:value
++   on:input={(e) => onChange(+e.currentTarget.value)}
+  />
 ```
 
 And on the app component:
 
-_./App.svelte_
+_./src/App.svelte_
 
 ```diff
-<script lang="ts">
-  import SingleColorEditor from './color-picker/single-color-editor.svelte';
+  <script lang="ts">
+    import SingleColorEditor from "./color-picker/single-color-editor.svelte";
 
-  let red = 128;
+    let red = 128;
 
-+ const onChange = (value: number) => {
-+   red = value;
-+ }
-</script>
++   const onChange = (value: number) => {
++     red = value;
++   };
+  </script>
 
-<main class="root">
-  <SingleColorEditor
-    name="Red"
-    value={red}
-+    onChange={onChange}
-  />
-  {red}
-</main>
+  <main class="root">
+    <SingleColorEditor
+      name="Red"
+      value={red}
++     onChange={onChange}
+    />
+    {red}
+  </main>
 ```
 
 That was cool, specially if we come from a React background, buuut Svelte offers us another flavor more Vue style, and event dispatcher, let's give a try:
@@ -159,73 +159,73 @@ That was cool, specially if we come from a React background, buuut Svelte offers
 In our child component we will instantiate a new event dispatcher (this must be
 called before the component is instantiated).
 
-_./color-picker/single-color-editor.svelte_
+_./src/color-picker/single-color-editor.svelte_
 
 ```diff
-<script lang="ts">
-+ import { createEventDispatcher } from 'svelte';
+  <script lang="ts">
++   import { createEventDispatcher } from "svelte";
 
- export let name = ""
- export let value= 0;
-- export let onChange = (value: number) => {};
+    export let name = "";
+    export let value= 0;
+-   export let onChange = (value: number) => {};
 
-+ const dispatch = createEventDispatcher<{valuechange: number}>();
-</script>
++   const dispatch = createEventDispatcher<{ valuechange: number }>();
+  </script>
 ```
 
 Now on let's dispatch the value-change event:
 
 ```diff
-<input id="color" type="range" min="0" max="255" bind:value
--  on:input={(e) => onChange(+e.currentTarget.value)}
-+  on:input={(e) => dispatch('valuechange', +e.currentTarget.value)}
-/>
+  <input id="color" type="range" min="0" max="255" bind:value
+-   on:input={(e) => onChange(+e.currentTarget.value)}
++   on:input={(e) => dispatch("valuechange", +e.currentTarget.value)}
+  />
 ```
 
 And on the app component let's listen for the dispatcher
-(more about typing dispatcher: https://github.com/sveltejs/language-tools/issues/424):
+(more about typing dispatcher [here](https://github.com/sveltejs/language-tools/issues/424)):
 
-_./App.svelte_
+_./src/App.svelte_
 
 ```diff
-<script lang="ts">
-  import SingleColorEditor from './color-picker/single-color-editor.svelte';
+  <script lang="ts">
+    import SingleColorEditor from "./color-picker/single-color-editor.svelte";
 
-  let red = 128;
--  const onChange = (value: number) => {
--   red = value;
--  }
+    let red = 128;
+-    const onChange = (value: number) => {
+-     red = value;
+-    };
 
-+  function handleValueChanged(event : CustomEvent<number>) {
-+    // Just in case we want to reuse this for more than one event
-+    if (event.type === 'valuechange') {
-+      red = event.detail
++    function handleValueChanged(event: CustomEvent<number>) {
++      // Just in case we want to reuse this for more than one event
++      if (event.type === "valuechange") {
++        red = event.detail;
++      }
 +    }
-+  }
-</script>
+  </script>
 
-<main class="root">
-  <SingleColorEditor
-    name="Red"
-    value={red}
--    onChange={onChange}
-+    on:valuechange={handleValueChanged}
-  />
-  {red}
-</main>
+  <main class="root">
+    <SingleColorEditor
+      name="Red"
+      value={red}
+-      onChange={onChange}
++      on:valuechange={handleValueChanged}
+    />
+    {red}
+  </main>
 ```
 
-> More info about typing component events: https://github.com/sveltejs/language-tools/blob/master/docs/preprocessors/typescript.md#typing-component-events
+> More info about typing component events [here](https://github.com/sveltejs/language-tools/blob/master/docs/prveprocessors/typescript.md#typing-component-events).
 
 Now a question may arise... what if I want to bubble up a dispatch event to an ancestor
 that is not direct, do I have to recreate a dispatcher per event? The answer is NO,
-Svelte offers a shortcut for this (on:mMessage, more info: https://svelte.dev/tutorial/event-forwarding):
+Svelte offers a shortcut for this (`on:message`, more info [here](https://svelte.dev/tutorial/event-forwarding)).
 
 Let's keep on building our component, we got one slider for the red component, but we
 need two more, let's create a super component that will instantiate the three
 color components.
 
-_./color-picker/color-editor.svelte_
+_./src/color-picker/color-editor.svelte_
 
 ```svelte
 <script lang="ts">
@@ -273,7 +273,7 @@ Ok, good start... but what if we want to use the same dispatcher for all the sin
 
 This time we are going to use an elaborated payload with a name and value property, let's define it an interface:
 
-_./color-picker/model.ts_
+_./src/color-picker/model.ts_
 
 ```ts
 export interface ValueChangePayload {
@@ -285,199 +285,197 @@ export interface ValueChangePayload {
 _./color-picker/single-color-editor.svelte_
 
 ```diff
-<script lang="ts">
- import { createEventDispatcher } from 'svelte';
-+ import type { ValueChangePayload } from './model';
- export let name = ""
- export let value= 0;
+  <script lang="ts">
+    import { createEventDispatcher } from "svelte";
++   import type { ValueChangePayload } from './model';
+    export let name = "";
+    export let value= 0;
 
-- const dispatch = createEventDispatcher<{valuechange: number}>();
-+  const dispatch = createEventDispatcher<{valuechange: ValueChangePayload}>();
-</script>
+-   const dispatch = createEventDispatcher<{ valuechange: number }>();
++   const dispatch = createEventDispatcher<{ valuechange: ValueChangePayload }>();
+  </script>
 
-<label for="color">{name}</label>
-<input id="color"
-        type="range"
-        min="0"
-        max="255"
-        bind:value
--        on:input={(e) => dispatch('valuechange', +e.currentTarget.value)}
-+        on:input={(e) => dispatch('valuechange', {name: name, value: +e.currentTarget.value})}
-
-/>
+  <label for="color">{name}</label>
+  <input id="color"
+    type="range"
+    min="0"
+    max="255"
+    bind:value
+-   on:input={(e) => dispatch("valuechange", +e.currentTarget.value)}
++   on:input={(e) => dispatch("valuechange", { name, value: +e.currentTarget.value })}
+  />
 ```
 
 And in the main editor:
 
-_./src/color-picker/color-editor.svelte.ts_
+_./src/color-picker/color-editor.svelte_
 
 ```diff
-+ import type { ValueChangePayload } from './single-color-editor.svelte';
-// ...
++   import type { ValueChangePayload } from './single-color-editor.svelte';
+    // ...
 
--  const handleValueChanged = () => {
-+  const handleValueChanged =(eventInfo: CustomEvent<ValueChangePayload>) => {
--    console.log('handleValueChanged');
-+    console.log(eventInfo.detail.name, eventInfo.detail.value);
-  }
-</script>
+-   const handleValueChanged = () => {
++   const handleValueChanged =(eventInfo: CustomEvent<ValueChangePayload>) => {
+-     console.log("handleValueChanged");
++     console.log(eventInfo.detail.name, eventInfo.detail.value);
+    };
+  </script>
 ```
 
 Let's use this color editor in our main app component:
 
-_./src/app.svelte_
+_./src/App.svelte_
 
 ```diff
-<script lang="ts">
-+  import ColorEditor from './color-picker/color-editor.svelte';
--  import SingleColorEditor from './color-picker/single-color-editor.svelte';
+  <script lang="ts">
++   import ColorEditor from "./color-picker/color-editor.svelte";
+-   import SingleColorEditor from "./color-picker/single-color-editor.svelte";
 
--  let red = 128;
+-   let red = 128;
 
--  function handleValueChanged(event : CustomEvent<number>) {
--    // Just in case we want to reuse this for more than one event
--    if (event.type === 'valuechange') {
--      red = event.detail
--    }
--  }
-</script>
+-   function handleValueChanged(event: CustomEvent<number>) {
+-     // Just in case we want to reuse this for more than one event
+-     if (event.type === "valuechange") {
+-       red = event.detail;
+-     }
+-   }
+  </script>
 
-<main class="root">
-+  <ColorEditor/>
--  <SingleColorEditor
--    name="Red"
--    value={red}
--    on:valuechange={handleValueChanged}
--  />
--  {red}
-</main>
+  <main class="root">
++   <ColorEditor />
+-   <SingleColorEditor
+-     name="Red"
+-     value={red}
+-     on:valuechange={handleValueChanged}
+-   />
+-   {red}
+  </main>
 ```
 
 - That was cool, we got the event typed and all that jazz, but we are not consuming that in our main app :), let's expose the _red_ _green_ _blue_ variables as props:
 
-_./src/color-editor.svelte_
+_./src/color-picker/color-editor.svelte_
 
 ```diff
-<script lang="ts">
-  import SingleColorEditor from './single-color-editor.svelte'
+  <script lang="ts">
+    import SingleColorEditor from "./single-color-editor.svelte";
 
--  let red = 128;
--  let green = 128;
--  let blue = 128;
-+  export let red = 128;
-+  export let green = 128;
-+  export let blue = 128;
+-   let red = 128;
+-   let green = 128;
+-   let blue = 128;
++   export let red = 128;
++   export let green = 128;
++   export let blue = 128;
 ```
 
 And let's use the props in our main app component:
 
-_./src/app.svelte_
+_./src/App.svelte_
 
 ```diff
-<script lang="ts">
-  import ColorEditor from './color-picker/color-editor.svelte';
-+ let red = 50;
-+ let blue = 200;
-+ let green = 10;
-</script>
+  <script lang="ts">
+    import ColorEditor from "./color-picker/color-editor.svelte";
++   let red = 50;
++   let blue = 200;
++   let green = 10;
+  </script>
 
-<main class="color">
--  <ColorEditor/>
-+  <ColorEditor red={red} green={green} blue={blue}/>
-+  {red} {green} {blue}
-</main>
+  <main class="color">
+-    <ColorEditor />
++    <ColorEditor red={red} green={green} blue={blue} />
++    {red} {green} {blue}
+  </main>
 ```
 
-Not bad, values are display in each of the slider buuuut they changes are not reflected in the app
+Not bad, values are displayed in each of the slider buuuut they changes are not reflected in the app
 component, we need to bubble up the event to the app component, in order to avoid creating an intermediate
-dispatcher on our color editor, we can take a shortcut, use event forwarding: https://svelte.dev/tutorial/event-forwarding
+dispatcher on our color editor, we can take a shortcut, use [event forwarding](https://svelte.dev/tutorial/event-forwarding).
 
 Let's go for that, we just simplify _color-editor_ we are not going to delegate the _valueChange_ event
 handling to the parent component.
 
-_./src/color-editor.svelte_
+_./src/color-picker/color-editor.svelte_
 
 ```diff
-<script lang="ts">
-  import SingleColorEditor from './single-color-editor.svelte'
+  <script lang="ts">
+    import SingleColorEditor from "./single-color-editor.svelte";
 
-  export let red = 128;
-  export let green = 128;
-  export let blue = 128;
+    export let red = 128;
+    export let green = 128;
+    export let blue = 128;
 
--  const handleValueChanged = (eventInfo:  CustomEvent<{name: string, value: number}>) => {
--    console.log(eventInfo.detail.name, eventInfo.detail.value);
--  }
+-   const handleValueChanged = (eventInfo: CustomEvent<{ name: string; value: number }>) => {
+-     console.log(eventInfo.detail.name, eventInfo.detail.value);
+-   };
+  </script>
 
-</script>
 
-
-<div class="root">
-  <SingleColorEditor
-    name="Red"
-    value={red}
--    on:valuechange={handleValueChanged}
-+    on:valuechange
-/>
-
+  <div class="root">
     <SingleColorEditor
-    name="Green"
-    value={green}
--    on:valuechange={handleValueChanged}
-+    on:valuechange
-/>
+      name="Red"
+      value={red}
+-     on:valuechange={handleValueChanged}
++     on:valuechange
+    />
 
-    <SingleColorEditor
-    name="Blue"
-    value={blue}
--    on:valuechange={handleValueChanged}
-+    on:valuechange
-/>
-</div>
+      <SingleColorEditor
+      name="Green"
+      value={green}
+-     on:valuechange={handleValueChanged}
++     on:valuechange
+    />
+
+      <SingleColorEditor
+      name="Blue"
+      value={blue}
+-     on:valuechange={handleValueChanged}
++     on:valuechange
+    />
+  </div>
 ```
 
 And on the main app:
 
-_./src/app.svelte_
+_./src/App.svelte_
 
 ```diff
-<script lang="ts">
-+  import type { ValueChangePayload } from './color-picker/model';
-  import ColorEditor from './color-picker/color-editor.svelte';
-  let red = 50;
-  let blue = 200;
-  let green = 10;
+  <script lang="ts">
++   import type { ValueChangePayload } from './color-picker/model';
+    import ColorEditor from "./color-picker/color-editor.svelte";
+    let red = 50;
+    let blue = 200;
+    let green = 10;
 
-+  const handleValueChanged = (eventInfo:  CustomEvent<ValueChangePayload>) => {
-+    switch (eventInfo.detail.name) {
-+      case 'Red':
-+        red = eventInfo.detail.value;
-+        break;
-+      case 'Green':
-+        green = eventInfo.detail.value;
-+        break;
-+      case 'Blue':
-+        blue = eventInfo.detail.value;
-+    }
-+  }
-</script>
++   const handleValueChanged = (eventInfo: CustomEvent<ValueChangePayload>) => {
++     switch (eventInfo.detail.name) {
++       case "Red":
++         red = eventInfo.detail.value;
++         break;
++       case "Green":
++         green = eventInfo.detail.value;
++         break;
++       case "Blue":
++         blue = eventInfo.detail.value;
++     }
++   };
+  </script>
 
-<main class="root">
-  <ColorEditor
-    red={red}
-    green={green}
-    blue={blue}
-+   on:valuechange={handleValueChanged}
-  />
-  {red} {green} {blue}
-</main>
+  <main class="root">
+    <ColorEditor
+      red={red}
+      green={green}
+      blue={blue}
++     on:valuechange={handleValueChanged}
+    />
+    {red} {green} {blue}
+  </main>
 ```
 
 > We have used single variables for each component just to show the forward event handling, we could
 > encapsulate this values in an object (color={red, green, blue}) and get our code simpler, if you
 > want to give a try it could be a good exercise to try it out.
 
-Now let's create a _color-display_ that will show the current color we are displaying (if you want you can try and take this as an excercise):
+Now let's create a _color-display_ that will show the current color we are displaying (if you want you can try and take this as an exercise):
 
 _./src/color-picker/color-display.svelte_
 
@@ -503,55 +501,55 @@ _./src/color-picker/color-display.svelte_
 
 And let's instantiate it in our app main component:
 
-_./src/app.svelte_
+_./src/App.svelte_
 
 ```diff
-<script lang="ts">
+  <script lang="ts">
 +  import type { ValueChangePayload } from './color-picker/model';
-+ import ColorDisplay from './color-picker/color-display.svelte';
-  import ColorEditor from './color-picker/color-editor.svelte';
-  let red = 50;
-  let blue = 200;
-  let green = 10;
++   import ColorDisplay from "./color-picker/color-display.svelte";
+    import ColorEditor from "./color-picker/color-editor.svelte";
+    let red = 50;
+    let blue = 200;
+    let green = 10;
 
-  const handleValueChanged = (eventInfo:  CustomEvent<ValueChangePayload>) => {
-    switch (eventInfo.detail.name) {
-      case 'Red':
-        red = eventInfo.detail.value;
-        break;
-      case 'Green':
-        green = eventInfo.detail.value;
-        break;
-      case 'Blue':
-        blue = eventInfo.detail.value;
-    }
-  }
-</script>
+    const handleValueChanged = (eventInfo: CustomEvent<ValueChangePayload>) => {
+      switch (eventInfo.detail.name) {
+        case "Red":
+          red = eventInfo.detail.value;
+          break;
+        case "Green":
+          green = eventInfo.detail.value;
+          break;
+        case "Blue":
+          blue = eventInfo.detail.value;
+      }
+    };
+  </script>
 
-<main class="root">
-+  <div class="display">
-+      <ColorDisplay red={red} green={green} blue={blue}/>
-+          R: {red},
-+          G: {green},
-+          B: {blue}
-+  </div>
-  <ColorEditor red={red} green={green} blue={blue}
-  on:valuechange={handleValueChanged}/>
--  {red} {green} {blue}
-</main>
+  <main class="root">
++   <div class="display">
++     <ColorDisplay red={red} green={green} blue={blue} />
++     R: {red},
++     G: {green},
++     B: {blue}
++   </div>
+    <ColorEditor red={red} green={green} blue={blue}
+      on:valuechange={handleValueChanged} />
+-    {red} {green} {blue}
+  </main>
 
 + <style>
-+ 	.root {
-+ 		display: flex;
-+ 		gap: 50px;
-+ 	}
++   .root {
++     display: flex;
++     gap: 50px;
++   }
 +
-+ 	.display {
-+ 		display: flex;
-+ 		flex-direction: column;
-+ 		gap: 20px;
-+ 		align-items: space-between;
-+ 	}
++   .display {
++     display: flex;
++     flex-direction: column;
++     gap: 20px;
++     align-items: space-between;
++   }
 + </style>
 ```
 
