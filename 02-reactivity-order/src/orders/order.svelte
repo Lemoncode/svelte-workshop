@@ -24,7 +24,7 @@
 
   $: total = subtotal + vat;
 
-  export const removeItem = (item : Item) => {
+  export const removeItem = (item: Item) => {
     // Svelte's reactivity is triggered by assignments. Therefore push, pop, slice etc do not work
     order.itemCollection = order.itemCollection.filter((e) => e !== item);
   };
@@ -39,7 +39,7 @@
   <h3>Total</h3>
   <h3>Commands</h3>
 
-  {#each order.itemCollection as item, index(index)}
+  {#each order.itemCollection as item, index (index)}
     <input bind:value={item.name} />
     <input bind:value={item.quantity} type="number" />
     <input bind:value={item.price} type="number" />
