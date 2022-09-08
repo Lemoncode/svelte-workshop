@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Writable } from 'svelte/store'; 
+  import type { Writable } from "svelte/store";
   import { setContext } from "svelte";
   import type { UserEntity } from "./model";
   import { createUserInfoStore } from "./user.store";

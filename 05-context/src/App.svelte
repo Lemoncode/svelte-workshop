@@ -6,8 +6,8 @@
   <h1>Context Demo</h1>
   <UserInfoProvider>
     <NameComponent />
-  </UserInfoProvider> 
+  </UserInfoProvider>
   <UserInfoProvider>
     <NameComponent />
-  </UserInfoProvider> 
+  </UserInfoProvider>
 </main>

@@ -1,14 +1,13 @@
 # Summary
 
-- Let's create two components that will be used to display a name
-  and edit a name and wrap it in a myname component.
+- We will create two components: one to display a name, other to edit a name. We will wrap them in a _Name_ component.
 
 - We won't use props (yes, this is an overkill it's just for the
   sake of the example).
 
 - We will first solve the problem using stores.
 
-- Then we will instantiate two instance of the myname component, and
+- Then we will create two instances of the _Name_ component, and
   we will check that both components will share the same info :(.
 
 - Time to start using context, let's use it just to store a given string,
@@ -21,7 +20,7 @@
 
 # Step By Step Guide
 
-- This example will take a starting point _00-scratch-typescript_
+- This example will take a starting point _00-boiler-typescript_
 
 - Let's install the packages.
 
@@ -125,15 +124,15 @@ Buuut... let's try to instantiate two instances of the component:
 _./src/App.svelte_
 
 ```diff
-<script lang="ts">
-  import { NameComponent } from "./name-component";
-</script>
+  <script lang="ts">
+    import { NameComponent } from "./name-component";
+  </script>
 
-<main>
-  <h1>Context Demo</h1>
-  <NameComponent />
+  <main>
+    <h1>Context Demo</h1>
+    <NameComponent />
 +   <NameComponent />
-</main>
+  </main>
 ```
 
 What's going on? Since we are using an store both components are sharing
@@ -144,11 +143,11 @@ What else can we do?
 Let' play with Svelte Context.
 
 Let's get rid of the store solution (temporarily :)) and let's start
-using a new api _context_ we got _setContext_ and _getContext_ we
-pass a key and we get a value...
+using a new _context_ api. We got _setContext_ and _getContext_ that we'll use to
+pass a key and get a value...
 
 This seems to be ok, but we will need to add an extra step to make it
-work, why? because Context in svelte:
+work, why? Because context in svelte:
 
 - Allows you to call get and set context just when a component is initialized
   (so no update in _onChange_ handlers like...).
@@ -160,22 +159,22 @@ So let's try first to add a "react" like approach:
 Let's initialize the value (in this case we will add some random number
 to check that bot name edit instances are initialized with different data)
 
-_./src/name-component/name-component_
+_./src/name-component/name-component.svelte_
 
 ```diff
-<script lang="ts">
-+ import { setContext } from "svelte";
-+ import type {UserEntity} from './model';
-  import NameDisplay from "./name-display.svelte";
-  import NameEdit from "./name-edit.svelte";
+  <script lang="ts">
++   import { setContext } from "svelte";
++   import type { UserEntity } from "./model";
+    import NameDisplay from "./name-display.svelte";
+    import NameEdit from "./name-edit.svelte";
 
-+  setContext<UserEntity>("userInfoStore", {
-+    username: `Seed name: ${Math.random()}`,
-+  });
-</script>
++   setContext<UserEntity>("userInfoStore", {
++     username: `Seed name: ${Math.random()}`,
++   });
+  </script>
 
-<NameDisplay />
-<NameEdit />
+  <NameDisplay />
+  <NameEdit />
 ```
 
 Then in the display and edit components:
@@ -183,45 +182,45 @@ Then in the display and edit components:
 _./src/name-component/name-display.svelte_
 
 ```diff
-<script lang="ts">
-+  import type {UserEntity} from './model';
-+  import { getContext, setContext } from "svelte";
--  import { userInfoStore } from "./user.store";
+  <script lang="ts">
+-   import { userInfoStore } from "./user.store";
++   import type { UserEntity } from "./model";
++   import { getContext } from "svelte";
++
++   const userInfo = getContext<UserEntity>("userInfoStore");
+  </script>
 
-+ const userInfo = getContext<UserEntity>("userInfoStore");
-</script>
-
--<h3>Username: {$userInfoStore.username}</h3>
-+<h3>Username: {userInfo.username}</h3>
+- <h3>Username: {$userInfoStore.username}</h3>
++ <h3>Username: {userInfo.username}</h3>
 ```
 
 _./src/name-component/name-edit.svelte_
 
 ```diff
-<script lang="ts">
--  import { userInfoStore } from "./user.store";
-+  import { getContext, setContext } from "svelte";
-+  import type {UserEntity} from './model';
-
-+  let userInfo = getContext<UserEntity>("userInfoStore");
-</script>
+  <script lang="ts">
+-   import { userInfoStore } from "./user.store";
++   import { getContext, setContext } from "svelte";
++   import type { UserEntity } from "./model";
++
++   let userInfo = getContext<UserEntity>("userInfoStore");
+  </script>
 
 - <input bind:value={$userInfoStore.username} />
 
 + <input
-+  bind:value={userInfo.username}
-+  on:input={(e) =>
-+    setContext("userInfoStore", {
-+      ...userInfo,
-+      username: e.currentTarget.value,
-+    })}
++   bind:value={userInfo.username}
++   on:input={(e) =>
++     setContext<UserEntity>("userInfoStore", {
++       ...userInfo,
++       username: e.currentTarget.value,
++   })}
 + />
 ```
 
 Well if we run this, a good thing is that we got two different values
 on each component, that's nice...
 
-BUT We will get no reactivity !! :-@, what's going on here? If we want
+BUT we will get no reactivity !! :-@, what's going on here? If we want
 to get reactivity with a context we have to combine it with stores,
 but in this case we will keep the store as private and just keep
 it for the context it self.
@@ -234,24 +233,22 @@ we will assign an store to it:
 _./src/name-component/name-component.svelte_
 
 ```diff
-<script lang="ts">
-+ import type { Writable } from 'svelte/store';
-+ import {writable} from 'svelte/store';
-  import { setContext } from "svelte";
-  import type {UserEntity} from './model';
-  import NameDisplay from "./name-display.svelte";
-  import NameEdit from "./name-edit.svelte";
+  <script lang="ts">
++   import type { Writable } from "svelte/store";
++   import { writable } from "svelte/store";
+    import { setContext } from "svelte";
+    import type { UserEntity } from "./model";
+    import NameDisplay from "./name-display.svelte";
+    import NameEdit from "./name-edit.svelte";
 
-+ const userInfoStore = writable<UserEntity>({
-+   username: `Seed name:  ${Math.random()}`,
-+ });
-
-+ setContext<Writable<UserEntity>>("userInfoStore", userInfoStore);
-
--  setContext("userInfoStore", {
--    username: "Seed name " + Math.random(),
--  });
-</script>
++   const userInfoStore = writable<UserEntity>({
++     username: `Seed name: ${Math.random()}`,
++   });
+-   setContext("userInfoStore", {
+-     username: `Seed name: ${Math.random()}`,
+-   });
++   setContext<Writable<UserEntity>>("userInfoStore", userInfoStore);
+  </script>
 ```
 
 - Now let's go for the display name component, since we are using an
@@ -260,19 +257,17 @@ _./src/name-component/name-component.svelte_
 _./src/name-component/name-display.svelte_
 
 ```diff
-<script lang="ts">
-+ import type {UserEntity} from './model';
-+ import type { Writable } from 'svelte/store';
-  import { getContext } from "svelte";
--  import { userInfoStore } from "./user.store";
+  <script lang="ts">
+    import type { UserEntity } from "./model";
++   import type { Writable } from 'svelte/store';
+    import { getContext } from "svelte";
 
--  const userInfo: any = getContext("userInfoStore");
-+  const userInfoStore = getContext<Writable<UserEntity>>("userInfoStore");
+-   const userInfo = getContext<UserEntity>("userInfoStore");
++   const userInfoStore = getContext<Writable<UserEntity>>("userInfoStore");
+  </script>
 
-</script>
-
--<h3>Username: {userInfo.username}</h3>
-+<h3>Username: {$userInfoStore.username}</h3>
+- <h3>Username: {userInfo.username}</h3>
++ <h3>Username: {$userInfoStore.username}</h3>
 ```
 
 - It's time to update the edit name component, this time we will
@@ -282,24 +277,24 @@ _./src/name-component/name-display.svelte_
 _./src/name-component/name-edit.svelte_
 
 ```diff
-<script lang="ts">
-+ import type { Writable } from 'svelte/store';
-+  import { getContext } from "svelte";
--  import { getContext, setContext } from "svelte";
+  <script lang="ts">
++   import type { Writable } from "svelte/store";
+    import type { UserEntity } from "./model";
+-   import { getContext, setContext } from "svelte";
++   import { getContext } from "svelte";
 
--  const userInfo: any = getContext("userInfoStore");
-+  const userInfoStore = getContext<Writable<UserEntity>>("userInfoStore");
-</script>
+-   const userInfo = getContext<UserEntity>("userInfoStore");
++   const userInfoStore = getContext<Writable<UserEntity>>("userInfoStore");
 
 + <input bind:value={$userInfoStore.username}>
 
 - <input
--  bind:value={userInfo.username}
--  on:input={(e) =>
--    setContext("userInfoStore", {
--      ...userInfo,
--      username: e.currentTarget.value,
--    })}
+-   bind:value={userInfo.username}
+-   on:input={(e) =>
+-     setContext("userInfoStore", {
+-       ...userInfo,
+-       username: e.currentTarget.value,
+-   })}
 - />
 ```
 
@@ -324,7 +319,7 @@ _./src/name-component/user-info.provider.svelte_
   import type { UserEntity } from "./model";
 
   const userInfoStore = writable<UserEntity>({
-    username: "Seed name " + Math.random(),
+    username: `Seed name: ${Math.random()}`,
   });
 
   setContext<Writable<UserEntity>>("userInfoStore", userInfoStore);
@@ -338,23 +333,23 @@ _./src/name-component/user-info.provider.svelte_
 _./src/name-component/name-component.svelte_
 
 ```diff
-<script lang="ts">
--  import type { Writable } from 'svelte/store';
--  import {writable} from 'svelte/store';
--  import { setContext } from "svelte";
--  import type {UserEntity} from './model';
-  import NameDisplay from "./name-display.svelte";
-  import NameEdit from "./name-edit.svelte";
+  <script lang="ts">
+-   import type {UserEntity} from "./model";
+-   import { setContext } from "svelte";
+-   import type { Writable } from "svelte/store";
+-   import { writable } from "svelte/store";
+    import NameDisplay from "./name-display.svelte";
+    import NameEdit from "./name-edit.svelte";
+-
+-   const userInfoStore = writable<UserInfo>({
+-     username: `Seed name: ${Math.random()}`,
+-   });
+-
+-   setContext("userInfoStore", userInfoStore);
+  </script>
 
--  const userInfoStore = writable<UserInfo>({
--   username: "Seed name" + Math.random(),
-- });
-
-- setContext("userInfoStore", userInfoStore);
-</script>
-
-<NameDisplay />
-<NameEdit />
+  <NameDisplay />
+  <NameEdit />
 ```
 
 - Let's update our index barrel
@@ -371,24 +366,24 @@ export { default as NameComponent } from "./name-component.svelte";
 _./src/App.svelte_
 
 ```diff
-<script lang="ts">
--  import { NameComponent } from "./name-component";
-+  import { NameComponent, UserInfoProvider } from "./name-component";
-</script>
+  <script lang="ts">
+-   import { NameComponent } from "./name-component";
++   import { NameComponent, UserInfoProvider } from "./name-component";
+  </script>
 
-<main>
-  <h1>Context Demo</h1>
-+ <UserInfoProvider>
-    <NameComponent />
-+ </UserInfoProvider>
-+ <UserInfoProvider>
-    <NameComponent />
-+ </UserInfoProvider>
-</main>
+  <main>
+    <h1>Context Demo</h1>
++   <UserInfoProvider>
+      <NameComponent />
++   </UserInfoProvider>
++   <UserInfoProvider>
+      <NameComponent />
++   </UserInfoProvider>
+  </main>
 ```
 
 Now you can give a try and enclose the second _NameComponent_ inside the
-first _userInfoProvider_
+first _UserInfoProvider_
 
 - Let's do a final refactor, we have enclosed the instantiation of the
   _userInfoStore_ inside of the provider, we could just enclose it in the
@@ -396,41 +391,39 @@ first _userInfoProvider_
   the same instantiated store we could just move to our _user.store.ts_
   but use a factory function instead:
 
-_./user.store.ts_
+_./src/name-component/user.store.ts_
 
 ```diff
-import type { UserEntity } from "./model";
-import { writable } from "svelte/store";
+  import type { UserEntity } from "./model";
+  import { writable } from "svelte/store";
 
 - export const userInfoStore = writable<UserEntity>({
--  username: "default user",
+-   username: "default user",
 - });
-
 + export const createUserInfoStore = () => writable<UserEntity>({
-+    username: `Seed name ${Math.random()}`,
++    username: "Seed name " + Math.random(),
 +  });
 ```
 
-_./user-info.provider.svelte_
+_./src/name-component/user-info.provider.svelte_
 
 ```diff
-<script lang="ts">
-  import type { Writable } from 'svelte/store';
-  import { setContext } from "svelte";
--  import { writable } from "svelte/store";
-  import type { UserEntity } from "./model";
-+ import { createUserInfoStore } from "./user.store";
+  <script lang="ts">
+    import type { Writable } from 'svelte/store';
+    import { setContext } from "svelte";
+-   import { writable } from "svelte/store";
+    import type { UserEntity } from "./model";
++   import { createUserInfoStore } from "./user.store";
 
--  const userInfoStore = writable<UserEntity>({
--    username: "Seed name " + Math.random(),
--  });
+-   const userInfoStore = writable<UserEntity>({
+-     username: `Seed name: ${Math.random()}`,
+-   });
+-
++   const userInfoStore = createUserInfoStore();
+    setContext<Writable<UserEntity>>("userInfoStore", userInfoStore);
+  </script>
 
-+  const userInfoStore = createUserInfoStore();
-
-  setContext<Writable<UserEntity>>("userInfoStore", userInfoStore);
-</script>
-
-<slot />
+  <slot />
 ```
 
 Not so bad, but the getContext and setContest are a bit clunky:
