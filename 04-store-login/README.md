@@ -16,7 +16,7 @@ Let's start by learning how _stores_ work: in this example we will learn how to 
 
 # Step By Step Guide
 
-- This example will take a starting point _00-scratch-typescript_
+- This example will take a starting point _00-boiler-typescript_
 
 - Let's install the packages.
 
@@ -134,7 +134,7 @@ _./src/common/navbar.svelte_
 
 _./src/common/index.ts_
 
-```svelte
+```ts
 export { default as NavBar } from "./navbar.svelte";
 ```
 
@@ -156,23 +156,23 @@ _./src/App.svelte_
 </script>
 
 <main>
-    <Router>
-      <NavBar />
-      <Route path="/">
-        <LoginPage />
-      </Route>
-      <Route path="home">
-        <HomePage />
-      </Route>
-    </Router>
+  <Router>
+    <NavBar />
+    <Route path="/">
+      <LoginPage />
+    </Route>
+    <Route path="home">
+      <HomePage />
+    </Route>
+  </Router>
 </main>
 
 <style>
-    main {
+  main {
     display: grid;
     grid-template-rows: auto 1fr;
     flex-grow: 1;
-    }
+  }
 </style>
 ```
 
@@ -181,18 +181,18 @@ _./src/App.svelte_
 _./src/pages/login-page.svelte_
 
 ```diff
-<script lang="ts">
-+  import { useNavigate } from "svelte-navigator";
-+  const navigate = useNavigate();
-  let username = "Mr. Nobody";
-</script>
+  <script lang="ts">
++   import { useNavigate } from "svelte-navigator";
++   const navigate = useNavigate();
+    let username = "Mr. Nobody";
+  </script>
 
-<div class="root">
-  <h1>Login Page</h1>
-  <input bind:value={username} />
--  <button on:click={() => console.log("It should navigate to home page")}>Login</button>
-+  <button on:click={() => navigate("home")}>Login</button>
-</div>
+  <div class="root">
+    <h1>Login Page</h1>
+    <input bind:value={username} />
+-   <button on:click={() => console.log("It should navigate to home page")}>Login</button>
++   <button on:click={() => navigate("/home")}>Login</button>
+  </div>
 ```
 
 - Let's give a try to what we have created:
@@ -206,7 +206,7 @@ npm run dev
   - Login page.
   - Home page.
 
-- And there's a common component called _navBar_ that will be displayed on top of the app.
+- And there's a common component called _NavBar_ that will be displayed on top of the app.
 
 The behavior that we want to achieve:
 
@@ -214,9 +214,9 @@ The behavior that we want to achieve:
   - The navBar should change to display the user's name.
   - The home page should change to display the user's name.
 
-Once that we are on the home page we want to be able to update the login name and this change should be reflected on the navBar and on the home page.
+Once that we are on the home page we want to be able to update the login name and this change should be reflected on the nav bar and on the home page.
 
-The userInformation should be globally accesible, so we don't need to pass it around using props.
+The user information should be globally accessible, so we don't need to pass it around using props.
 
 It seems like a good idea to use a _writable store_ to share the data.
 
@@ -226,9 +226,9 @@ Let's go for it:
   case we will store an object, so we can check the difference between replacing
   the value and updating it.
 
-We can create an store
+In order to create a store:
 
-- We will import _writable_ store from _svelte-store_: this will allow
+- We will import _writable_ store from _svelte-store_. This will allow
   us to hold a global data and be able to update it.
 
 - Then we will initialize the store with the initial value, it could be a simple string,
@@ -257,24 +257,24 @@ export * from "./user.store";
 _./src/pages/login-page.svelte_
 
 ```diff
-<script lang="ts">
-  import { useNavigate } from "svelte-navigator";
-+ import { userInfoStore } from "../stores";
-  const navigate = useNavigate();
-  let username = "Mr. Nobody";
+  <script lang="ts">
+    import { useNavigate } from "svelte-navigator";
++   import { userInfoStore } from "../stores";
+    const navigate = useNavigate();
+    let username = "Mr. Nobody";
 
-+  const handleLogin = (e) => {
-+    userInfoStore.set({ username });
-+    navigate("/home");
-+  };
-</script>
++   const handleLogin = (e) => {
++     userInfoStore.set({ username });
++     navigate("/home");
++   };
+  </script>
 
-<div class="root">
-  <h1>Login Page</h1>
-  <input bind:value={username}/>
--  <button on:click={() => navigate('home')}>Login</button>
-+  <button on:click={handleLogin}>Login</button>
-</div>
+  <div class="root">
+    <h1>Login Page</h1>
+    <input bind:value={username}/>
+-   <button on:click={() => navigate('home')}>Login</button>
++   <button on:click={handleLogin}>Login</button>
+  </div>
 ```
 
 - If we use _set_ we are replacing the whole object without taking into consideration the previous value, we may want to keep a reference to the old object and use the spread operator to keep the previous values and just replace only the one affected by the change, we can do this by using the store _update_ method, it could be something like:
@@ -283,13 +283,13 @@ _./src/pages/login-page.svelte_
 
 ```diff
   const handleLogin = (e) => {
--    userInfoStore.set({ username });
-+    userInfoStore.update(previous => ({ ...previous, username }));
+-   userInfoStore.set({ username });
++   userInfoStore.update(previous => ({ ...previous, username }));
     navigate("/home");
   };
 ```
 
-- Cool, now let's hop onto the _navBar_ component and display the user's name:
+- Cool! Now let's hop onto the _NavBar_ component and display the user's name:
   - We will import the _userInfoStore_ that we have created.
   - We will start by subscribing to store changes, and then update user Info.
 
@@ -310,43 +310,43 @@ _./src/common/navbar.svelte_
 + <h2>User Logged in: {userInfo.username}</h2>
 ```
 
-This approach is okeish but we would have to take care of doing even some cleanup in the component (unsubscribe), Svelte offers us a short cut (just a reactive assignment):
+This approach is ok-ish but we would have to take care of doing even some cleanup in the component (unsubscribe), Svelte offers us a short cut (just a reactive assignment):
 
 - To access the value of the _userInfoStore_ we have to prefix the store with the
   _$_ sign,
 - We will ask to listen the userInfoStore for changes, in order to use this value we have to use the _$_ sign again (in this case to make reactive this piece of code, this would be similar
-  in React to useEffect [userInfoStore]).
+  in React to adding _userInfoStore_ to the dependencies of _useEffect_).
 
 _./src/common/navbar.svelte_
 
 ```diff
-<script lang="ts">
-   import { userInfoStore } from "./stores";
+  <script lang="ts">
+    import { userInfoStore } from "./stores";
 -   let userInfo = null;
 -
 -   userInfoStore.subscribe(newUserInfo => {
--    userInfo = newUserInfo;
+-     userInfo = newUserInfo;
 -   });
 +   $: userInfo = $userInfoStore;
-</script>
+  </script>
 
   <h2>User Logged in: {userInfo.name}</h2>
 ```
 
-> Note we don't need to define the _userInfoStore_ using _let_, _Svelte_ will detect this and
+> Note we don't need to declare _userInfoStore_ using _let_, _Svelte_ will detect this and
 > initialize it for us.
 
 This is not bad, buuuuuut.... we can give it one more turn :), since we are using _$userInfoStore_
 this is reactive a statement (tip $ prefix :)), why not just use it directly in our _html_:
 
 ```diff
-<script lang="ts">
-   import { userInfoStore } from "./stores";
+  <script lang="ts">
+    import { userInfoStore } from "./stores";
 -   $: userInfo = $userInfoStore;
-</script>
+  </script>
 
--  <h2>User Logged in: {userInfo.name}</h2>
-+  <h2>User Logged in: {$userInfoStore.username}</h2>
+- <h2>User Logged in: {userInfo.name}</h2>
++ <h2>User Logged in: {$userInfoStore.username}</h2>
 ```
 
 - Let's jump into the home page, in this page we got a button that toggles the user's name
@@ -359,36 +359,36 @@ How this could work:
 _./src/pages/home-page.svelte_
 
 ```diff
-<script lang="ts">
-+ import { userInfoStore } from "../stores";
+  <script lang="ts">
++   import { userInfoStore } from "../stores";
 +
-  let showLoggedInUser = false;
-</script>
+    let showLoggedInUser = false;
+  </script>
 
-<div class="root">
-<h1>Home page</h1>
-<button
-  on:click={() => {
-    showLoggedInUser = !showLoggedInUser;
-  }}>Show Logged in User</button
->
-{#if showLoggedInUser}
--  <h2>Here we should show the logged in user</h2>
-+  <h2>logged in user: {$userInfoStore.username}</h2>
-{/if}
-</div>
+  <div class="root">
+    <h1>Home page</h1>
+    <button
+      on:click={() => {
+        showLoggedInUser = !showLoggedInUser;
+      }}>Show Logged in User</button
+    >
+    {#if showLoggedInUser}
+-     <h2>Here we should show the logged in user</h2>
++     <h2>logged in user: {$userInfoStore.username}</h2>
+    {/if}
+  </div>
 ```
 
 - So far so good, but now let's go for a twist, we want to be able to update the user's name, from the home page, we can just bind
   to _userInfo.username_
 
 ```diff
-{#if showLoggedInUser}
-  <h2>logged in user: {$userInfoStore.username}</h2>
-+  <input
-+    bind:value={$userInfoStore.username}
-+  />
-{/if}
+  {#if showLoggedInUser}
+    <h2>logged in user: {$userInfoStore.username}</h2>
++   <input
++     bind:value={$userInfoStore.username}
++   />
+  {/if}
 ```
 
-Let's give a try and YEEES... stores and reactive $ are our friends :).
+Let's give a try and YEEES... stores and reactive _$_ are our friends :).
