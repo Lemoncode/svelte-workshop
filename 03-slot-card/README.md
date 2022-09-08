@@ -1,6 +1,6 @@
 # Summary
 
-In React we are used to the _children_ property of a componente, when we work
+In React we are used to the _children_ property of a component, when we work
 with Svelte we get _Slots_ and this includes some extra goodies:
 
 - We can have a single slot or multiple named slots.
@@ -9,7 +9,7 @@ with Svelte we get _Slots_ and this includes some extra goodies:
 
 # Step By Step Guide
 
-- This example will take a starting point _00-scratch-typescript_
+- This example will take a starting point _00-boiler-typescript_
 
 - Let's install the packages.
 
@@ -60,9 +60,9 @@ _./src/common/index.ts_
 export { default as CardComponent } from "./card.svelte";
 ```
 
-Let's instantiate two instance of the component in our main _app_
+Let's add two instances of the component in our main _App_:
 
-_./src/app.svelte_
+_./src/App.svelte_
 
 ```sv
 <script lang="ts">
@@ -82,25 +82,25 @@ _./src/app.svelte_
 </style>
 ```
 
-- Cool,time to play with slots, we want to display in each card a different body.
+- Cool, time to play with slots, we want to display in each card a different body.
 
-- Let's create in our card componente slot for the body.
+- Let's create in our card component a slot for the body.
 
 _./src/common/card.svelte_
 
 ```diff
-<div class="root">
-  <!-- header -->
-  <div class="card-header">
-    <h2>Default header</h2>
+  <div class="root">
+    <!-- header -->
+    <div class="card-header">
+      <h2>Default header</h2>
+    </div>
+    <!-- body -->
+    <div class="card-body">
++     <slot>
+        <h3>Default body</h3>
++     </slot>
+    </div>
   </div>
-  <!-- body -->
-  <div class="card-body">
-+   <slot>
-      <h3>Default body</h3>
-+   </slot>
-  </div>
-</div>
 ```
 
 - Now let's define the body content for our card components instantiated in our app.
@@ -108,20 +108,20 @@ _./src/common/card.svelte_
 _./src/app.svelte_
 
 ```diff
-<script lang="ts">
-  import { CardComponent } from "./common";
-</script>
+  <script lang="ts">
+    import { CardComponent } from "./common";
+  </script>
 
-<main>
--  <CardComponent/>
--  <CardComponent/>
-+  <CardComponent>
-+   <h3>Body Card A</h3>
-+  </CardComponent>
-+  <CardComponent>
-+   <h3>Body Card B</h3>
-+  </CardComponent>
-</main>
+  <main>
+-   <CardComponent/>
+-   <CardComponent/>
++   <CardComponent>
++    <h3>Body Card A</h3>
++   </CardComponent>
++   <CardComponent>
++    <h3>Body Card B</h3>
++   </CardComponent>
+  </main>
 ```
 
 - So far so good, but what if we want to include a new slot for the card heading?
@@ -130,21 +130,21 @@ _./src/app.svelte_
 _./src/common/card.svelte_
 
 ```diff
-<div class="root">
-  <!-- header -->
-  <div class="card-header">
-+   <slot name="header">
-    <h2>Default header</h2>
-+   </slot>
+  <div class="root">
+    <!-- header -->
+    <div class="card-header">
++     <slot name="header">
+        <h2>Default header</h2>
++     </slot>
+    </div>
+    <!-- body -->
+    <div class="card-body">
+-     <slot>
++     <slot name="body">
+        <h3>Default body</h3>
+      </slot>
+    </div>
   </div>
-  <!-- body -->
-  <div class="card-body">
--   <slot>
-+   <slot name="body">
-      <h3>Default body</h3>
-   </slot>
-  </div>
-</div>
 ```
 
 - Now we got to named slots, let's define them in our card:
@@ -152,18 +152,18 @@ _./src/common/card.svelte_
 _./src/app.svelte_
 
 ```diff
-<main>
-  <CardComponent>
-+  <h2 slot="header">Header Card A</h2>
--   <h3>Body Card A</h3>
-+  <h3 slot="body">Body Card A</h3>
-  </CardComponent>
-  <CardComponent>
-+  <h2 slot="header">Header Card B</h2>
--   <h3>Body Card B</h3>
-+  <h3 slot="body">Body Card B</h3>
-  </CardComponent>
-</main>
+  <main>
+    <CardComponent>
++     <h2 slot="header">Header Card A</h2>
+-     <h3>Body Card A</h3>
++     <h3 slot="body">Body Card A</h3>
+   </CardComponent>
+   <CardComponent>
++    <h2 slot="header">Header Card B</h2>
+-    <h3>Body Card B</h3>
++    <h3 slot="body">Body Card B</h3>
+    </CardComponent>
+  </main>
 ```
 
 We can have some additional control:
