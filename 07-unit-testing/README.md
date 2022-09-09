@@ -2,7 +2,7 @@
 
 # Step By Step Guide
 
-- This example will take a starting point _00-scratch-typescript_
+- This example will take a starting point _00-boiler-typescript_
 
 - Let's install the packages.
 
@@ -12,7 +12,7 @@ npm install
 
 - Let's create a plain vanilla function (no markup):
 
-_./greet.business.ts_
+_./src/greet.business.ts_
 
 ```ts
 export const greetSomebody = (dude: string): string => {
@@ -22,7 +22,7 @@ export const greetSomebody = (dude: string): string => {
 
 - And let's create a simple component
 
-_./greet.svelte_
+_./src/greet.svelte_
 
 ```ts
 <h1>Hello Human !</h1>
@@ -43,13 +43,13 @@ npm install -D vitest
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-+    "test": "npx vitest"
++    "test": "vitest"
   },
 ```
 
 - Let's add a simple test to our greet business function.
 
-_./greet.business.spec.ts_
+_./src/greet.business.spec.ts_
 
 ```ts
 import { greetSomebody } from "./greet.business";
@@ -72,7 +72,7 @@ npm install -D @types/jest
   _describe_ and _it_, let's ask vitest to use globals, let's update our
   vite config:
 
-_./vite.config.js_
+_./vite.config.ts_
 
 ```diff
 import { defineConfig } from 'vite'
@@ -93,7 +93,7 @@ from the original one and extend it:
 
 > [More info](https://stackoverflow.com/questions/72146352/vitest-defineconfig-test-does-not-exist-in-type-userconfigexport)
 
-_./vite.config.js_
+_./vite.config.ts_
 
 ```diff
 import { defineConfig } from "vite";
@@ -139,8 +139,9 @@ _./package.json_
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
+-   "test": "npx vitest"
     "test": "npx vitest",
-+   "coverage": "npx vitest run --coverage"
++   "coverage": "vitest run --coverage"
   },
 ```
 
@@ -197,19 +198,18 @@ npm install -D @testing-library/jest-dom jsdom
 _./vite.config.ts_
 
 ```diff
-const vitestConfig: VitestUserConfigInterface = {
-  test: {
-    globals: true,
-+    environment: "jsdom",
-  },
+  const vitestConfig: VitestUserConfigInterface = {
+    test: {
+      globals: true,
++     environment: "jsdom",
+    },
+  };
 
-};
-
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [svelte()],
-  test: vitestConfig.test,
-});
+  // https://vitejs.dev/config/
+  export default defineConfig({
+    plugins: [svelte()],
+    test: vitestConfig.test,
+  });
 ```
 
 - Let's run the tests again
@@ -218,7 +218,7 @@ export default defineConfig({
 npm run test
 ```
 
-- Hurra ! We got a new error! :-@: _Error: Invalid Chai property: toBeInTheDocument_
+- Hurray! We got a new error! :-@: _Error: Invalid Chai property: toBeInTheDocument_
 
 We are using Jest matchers not chai, we need to add some extra config
 to get this working.
@@ -234,22 +234,22 @@ import "@testing-library/jest-dom";
 And let's indicate in our vite config that we are going to use this
 setup file:
 
-_./vite.config.js_
+_./vite.config.ts_
 
 ```diff
-const vitestConfig: VitestUserConfigInterface = {
-  test: {
-    globals: true,
-    environment: "jsdom",
-+    setupFiles: ["src/setuptest.ts"],
-  },
-};
+  const vitestConfig: VitestUserConfigInterface = {
+    test: {
+      globals: true,
+      environment: "jsdom",
++     setupFiles: ["src/setuptest.ts"],
+    },
+  };
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [svelte()],
-  test: vitestConfig.test,
-});
+  // https://vitejs.dev/config/
+  export default defineConfig({
+    plugins: [svelte()],
+    test: vitestConfig.test,
+  });
 ```
 
 And now we got it working (you can try changing the _hello human !_ literal
@@ -280,7 +280,7 @@ import Greet from "./greet.svelte";
 describe("greet component", () => {
   it("should render", () => {
 -    render(Greet);
-+    render(Greet, {name: 'John'});
++    render(Greet, { name: "John" });
 
 -    const heading = screen.getByText("Hello Human !");
 +    const heading = screen.getByText("Hello John !");
