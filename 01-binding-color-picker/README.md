@@ -563,15 +563,41 @@ maybe we could go easy, just extract the events payload from the component, let'
 _./src/tools/extract-event-payload.ts_
 
 ```ts
-type EventsHandlers<Component> = Component extends SvelteComponentTyped<unknown, infer EventsMap, unknown> ? {
-  [Event in keyof EventsMap]: (e: EventsMap[Event]) => void;
-} : never;
+import type { SvelteComponentTyped } from "svelte";
+
+export type EventsHandlers<Component> = Component extends SvelteComponentTyped<
+  unknown,
+  infer EventsMap,
+  unknown
+>
+  ? {
+      [Event in keyof EventsMap]: (e: EventsMap[Event]) => void;
+    }
+  : never;
 ```
 
 Now let's go to the app component, we don't need to import the interface:
 
-```svelte
+_./src/app.ts_
 
+```diff
+<script lang="ts">
++  import type {EventsHandlers} from './tools/extract-event-payload';
+-  import type { ValueChangePayload } from "./color-picker/model";
+  import ColorDisplay from "./color-picker/color-display.svelte";
+  import ColorEditor from "./color-picker/color-editor.svelte";
+  let red = 50;
+  let blue = 200;
+  let green = 10;
+
++  type ColorEditorEventHandlers = EventsHandlers<ColorEditor>;
+
+-  const handleValueChanged = (
++  const handleValueChanged : ColorEditorEventHandlers['valuechange']  = (
+
+    eventInfo: CustomEvent<ValueChangePayload>
+
+  ) => {
 ```
 
 ## Excercise
