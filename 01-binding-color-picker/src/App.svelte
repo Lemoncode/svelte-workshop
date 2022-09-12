@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { ValueChangePayload } from "./color-picker/model";
   import ColorDisplay from "./color-picker/color-display.svelte";
   import ColorEditor from "./color-picker/color-editor.svelte";
   let red = 50;

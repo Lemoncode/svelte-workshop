@@ -555,6 +555,25 @@ _./src/app.svelte_
 + </style>
 ```
 
+## Appendix TypeScript Magic
+
+Sometimes defining interfaces for the payload and consuming it in the parent components can be a bit tedious,
+maybe we could go easy, just extract the events payload from the component, let's see how:
+
+_./src/tools/extract-event-payload.ts_
+
+```ts
+type EventsHandlers<Component> = Component extends SvelteComponentTyped<unknown, infer EventsMap, unknown> ? {
+  [Event in keyof EventsMap]: (e: EventsMap[Event]) => void;
+} : never;
+```
+
+Now let's go to the app component, we don't need to import the interface:
+
+```svelte
+
+```
+
 ## Excercise
 
 And to wrap all this why not creating a _ColorPicker_ component that will bring together the
