@@ -594,9 +594,8 @@ _./src/app.ts_
 
 -  const handleValueChanged = (
 +  const handleValueChanged : ColorEditorEventHandlers['valuechange']  = (
-
-    eventInfo: CustomEvent<ValueChangePayload>
-
+-    eventInfo: CustomEvent<ValueChangePayload>
++    eventInfo
   ) => {
 ```
 
