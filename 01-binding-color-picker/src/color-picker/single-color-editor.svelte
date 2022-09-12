@@ -1,12 +1,11 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import type { ValueChangePayload } from './model';
 
   export let name = "";
   export let value = 0;
 
-  const dispatch = createEventDispatcher<{
-    valuechange: { name: string; value: number };
-  }>();
+  const dispatch = createEventDispatcher<{valuechange: ValueChangePayload}>();
 </script>
 
 <label for="color">{name}</label>

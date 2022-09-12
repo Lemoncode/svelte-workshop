@@ -120,7 +120,7 @@ _./color-picker/single-color-editor.svelte_
 <script lang="ts">
  export let name = ""
  export let value= 0;
-+ export let onChange = (value: number) => {};
++ export let onChange : (value: number) => void;
 </script>
 
 <label for="color">{name}</label>
@@ -271,15 +271,28 @@ _./color-picker/color-editor.svelte_
 
 Ok, good start... but what if we want to use the same dispatcher for all the single components? Let's add an extra params to the dispatcher payload in the single editor component:
 
+This time we are going to use an elaborated payload with a name and value property, let's define it an interface:
+
+_./color-picker/model.ts_
+
+```ts
+export interface ValueChangePayload {
+  name: string;
+  value: number;
+}
+```
+
 _./color-picker/single-color-editor.svelte_
 
 ```diff
 <script lang="ts">
  import { createEventDispatcher } from 'svelte';
++ import type { ValueChangePayload } from './model';
  export let name = ""
  export let value= 0;
+
 - const dispatch = createEventDispatcher<{valuechange: number}>();
-+  const dispatch = createEventDispatcher<{valuechange: {name : string, value: number}}>();
++  const dispatch = createEventDispatcher<{valuechange: ValueChangePayload}>();
 </script>
 
 <label for="color">{name}</label>
@@ -299,8 +312,11 @@ And in the main editor:
 _./src/color-picker/color-editor.svelte.ts_
 
 ```diff
++ import type { ValueChangePayload } from './single-color-editor.svelte';
+// ...
+
 -  const handleValueChanged = () => {
-+  const handleValueChanged =(eventInfo: CustomEvent<{name: string, value: number}>) => {
++  const handleValueChanged =(eventInfo: CustomEvent<ValueChangePayload>) => {
 -    console.log('handleValueChanged');
 +    console.log(eventInfo.detail.name, eventInfo.detail.value);
   }
@@ -426,12 +442,13 @@ _./src/app.svelte_
 
 ```diff
 <script lang="ts">
++  import type { ValueChangePayload } from './color-picker/model';
   import ColorEditor from './color-picker/color-editor.svelte';
   let red = 50;
   let blue = 200;
   let green = 10;
 
-+  const handleValueChanged = (eventInfo:  CustomEvent<{name: string, value: number}>) => {
++  const handleValueChanged = (eventInfo:  CustomEvent<ValueChangePayload>) => {
 +    switch (eventInfo.detail.name) {
 +      case 'Red':
 +        red = eventInfo.detail.value;
@@ -490,13 +507,14 @@ _./src/app.svelte_
 
 ```diff
 <script lang="ts">
++  import type { ValueChangePayload } from './color-picker/model';
 + import ColorDisplay from './color-picker/color-display.svelte';
   import ColorEditor from './color-picker/color-editor.svelte';
   let red = 50;
   let blue = 200;
   let green = 10;
 
-  const handleValueChanged = (eventInfo:  CustomEvent<{name: string, value: number}>) => {
+  const handleValueChanged = (eventInfo:  CustomEvent<ValueChangePayload>) => {
     switch (eventInfo.detail.name) {
       case 'Red':
         red = eventInfo.detail.value;

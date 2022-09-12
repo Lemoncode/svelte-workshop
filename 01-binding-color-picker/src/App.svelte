@@ -6,7 +6,7 @@
   let green = 10;
 
   const handleValueChanged = (
-    eventInfo: CustomEvent<{ name: string; value: number }>
+    eventInfo: CustomEvent<ValueChangePayload>
   ) => {
     switch (eventInfo.detail.name) {
       case "Red":
