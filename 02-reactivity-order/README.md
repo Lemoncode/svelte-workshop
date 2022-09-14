@@ -88,7 +88,7 @@ _./src/order.svelte_
 
 ```diff
 +<script lang="ts">
-+ import type {Order} from './order.model'
++ import type {Order, Item} from './order.model'
 + import {createNewItem } from './order.model';
 +
 +  let order : Order = {
@@ -114,7 +114,7 @@ _./src/order.svelte_
 
 ```diff
 <h1>Order Component</h1>
-+ {#each order.itemCollection as item, index}
++ {#each order.itemCollection as item, index(index)}
 +    <span>{item.name}</span>
 +    <span>{item.quantity}</span>
 +    <span>{item.price}</span>
@@ -198,9 +198,9 @@ If you give a try you will check that the total is being calculated.
   let vat = 0;
   let total = 0;
 
-+  export const removeItem = (index) => {
++  export const removeItem = (item : Item) => {
 +    // Svelte's reactivity is triggered by assignments. Therefore push, pop, slice etc do not work
-+    order.itemCollection = order.itemCollection.filter((e,i) => i !== index);
++    order.itemCollection = order.itemCollection.filter((e) => e !== item);
 +  }
 </script>
 
@@ -211,7 +211,7 @@ If you give a try you will check that the total is being calculated.
       <input bind:value={item.price} type="number"/>
      {item.price * item.quantity}
 -    <button>Delete</button>
-+    <button on:click={() => removeItem(index)}>Delete</button>
++    <button on:click={() => removeItem(item)}>Delete</button>
 // (...)
 ````
 
@@ -245,6 +245,34 @@ _./src/order.svelte_
 ```
 
 We are just assigning a new array that contains the old array and the new item.
+
+Let's play a little bit with reactivity and assigments, if we try this
+what would happen?
+
+```diff
+  <div class="add-container">
+    <button on:click={
+-      () => order.itemCollection = [...order.itemCollection, createNewItem()]
++      () => {
++          order.itemCollection.push(createNewItem())
++        }
+      } >Add</button>
+  </div>
+```
+
+It wont' work because there's no assignment and svelte does not notice about the
+update, but what if we try something like?
+
+```diff
+    <button on:click={
+      () => {
+          order.itemCollection.push(createNewItem())
++          order.itemCollection = order.itemCollection;
+        }
+      } >Add</button>
+```
+
+It works, there is an assignment... but what an ugly code :D
 
 It's time to calculate the subtotal (all items qty \* price but no tax included), the taxes to be paid, and the
 total (subtotal + taxes).
@@ -297,3 +325,11 @@ _./src/order.svelte_
 - Now we can start adding items and check
 
 If you run the app, you can see how we can update any item in the list (or add, remove) and automatically all the calcs are updated.
+
+- Additional syntax sugar, we can remove the totals variables declarations:
+
+```diff
+-  let subtotal = 0;
+-  let vat = 0;
+-  let total = 0;
+```

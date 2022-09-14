@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Order } from "./order.model";
+  import type { Order, Item } from "./order.model";
   import { createNewItem } from "./order.model";
 
   let order: Order = {
@@ -24,9 +24,9 @@
 
   $: total = subtotal + vat;
 
-  export const removeItem = (index) => {
+  export const removeItem = (item : Item) => {
     // Svelte's reactivity is triggered by assignments. Therefore push, pop, slice etc do not work
-    order.itemCollection = order.itemCollection.filter((e, i) => i !== index);
+    order.itemCollection = order.itemCollection.filter((e) => e !== item);
   };
 </script>
 
@@ -39,12 +39,12 @@
   <h3>Total</h3>
   <h3>Commands</h3>
 
-  {#each order.itemCollection as item, index}
+  {#each order.itemCollection as item, index(index)}
     <input bind:value={item.name} />
     <input bind:value={item.quantity} type="number" />
     <input bind:value={item.price} type="number" />
     {item.price * item.quantity}
-    <button on:click={() => removeItem(index)}>Delete</button>
+    <button on:click={() => removeItem(item)}>Delete</button>
   {/each}
 </div>
 
