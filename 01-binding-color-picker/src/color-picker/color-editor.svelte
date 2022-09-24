@@ -1,7 +1,6 @@
 <script lang="ts">
   import SingleColorEditor from "./single-color-editor.svelte";
 
-
   export let red = 128;
   export let green = 128;
   export let blue = 128;
