@@ -63,7 +63,6 @@ _./src/pages/login-page.svelte_
     width: 300px;
   }
 </style>
-
 ```
 
 _./src/pages/home-page.svelte_
@@ -105,7 +104,7 @@ _./src/pages/home-page.svelte_
 
 _./src/pages/index.ts_
 
-```svelte
+```ts
 export { default as LoginPage } from "./login-page.svelte";
 export { default as HomePage } from "./home-page.svelte";
 ```
