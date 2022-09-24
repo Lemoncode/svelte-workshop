@@ -43,7 +43,7 @@ npm install -D vitest
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-+    "test": "vitest"
++   "test": "vitest"
   },
 ```
 
@@ -75,16 +75,16 @@ npm install -D @types/jest
 _./vite.config.ts_
 
 ```diff
-import { defineConfig } from 'vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
+  import { defineConfig } from 'vite'
+  import { svelte } from '@sveltejs/vite-plugin-svelte'
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [svelte()],
-+ test: {
-+   globals: true,
-+ }
-})
+  // https://vitejs.dev/config/
+  export default defineConfig({
+    plugins: [svelte()],
++   test: {
++     globals: true,
++   }
+  })
 ```
 
 We get TypeScript errors on the vite.config why? because test
@@ -96,24 +96,24 @@ from the original one and extend it:
 _./vite.config.ts_
 
 ```diff
-import { defineConfig } from "vite";
-import { svelte } from "@sveltejs/vite-plugin-svelte";
+  import { defineConfig } from "vite";
+  import { svelte } from "@sveltejs/vite-plugin-svelte";
 + import type { UserConfig as VitestUserConfigInterface } from 'vitest/config';
 
 
 + const vitestConfig: VitestUserConfigInterface = {
-+  test: {
-+    globals: true
-+  }
-+};
++   test: {
++     globals: true
++   }
++ };
 
-// https://vitejs.dev/config/
-export default defineConfig({
+  // https://vitejs.dev/config/
+  export default defineConfig({
   plugins: [svelte()],
--  test: {
--    globals: true,
--  }
-+  test: vitestConfig.test
+-   test: {
+-     globals: true,
+-   }
++   test: vitestConfig.test
 });
 ```
 
@@ -279,12 +279,11 @@ import Greet from "./greet.svelte";
 
 describe("greet component", () => {
   it("should render", () => {
--    render(Greet);
-+    render(Greet, { name: "John" });
+-   render(Greet);
++   render(Greet, { name: "John" });
 
--    const heading = screen.getByText("Hello Human !");
-+    const heading = screen.getByText("Hello John !");
-
+-   const heading = screen.getByText("Hello Human !");
++   const heading = screen.getByText("Hello John !");
 
     expect(heading).toBeInTheDocument();
   });
