@@ -20,7 +20,7 @@
     "@vitest/coverage-c8": "^0.22.1",
     "jsdom": "^20.0.0",
     "prettier-plugin-svelte": "^2.7.0",
-    "svelte": "^3.49.0",
+    "svelte": "^3.50.1",
     "svelte-check": "^2.8.0",
     "svelte-preprocess": "^4.10.7",
     "tslib": "^2.4.0",
