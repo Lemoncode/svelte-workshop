@@ -56,6 +56,7 @@ _./src/App.svelte_
 ```svelte
 <script lang="ts">
   import SingleColorEditor from "./color-picker/single-color-editor.svelte";
+
   let red = 128;
 </script>
 
@@ -154,7 +155,7 @@ _./src/App.svelte_
   </main>
 ```
 
-That was cool, specially if we come from a React background, buuut Svelte offers us another flavor more Vue style, and event dispatcher, let's give a try:
+That was cool, specially if we come from a React background, buuut Svelte offers us another flavor more Vue style: an event dispatcher. Let's give a try:
 
 In our child component we will instantiate a new event dispatcher (this must be
 called before the component is instantiated).
@@ -164,11 +165,10 @@ _./src/color-picker/single-color-editor.svelte_
 ```diff
   <script lang="ts">
 +   import { createEventDispatcher } from "svelte";
-
++
     export let name = "";
     export let value= 0;
 -   export let onChange = (value: number) => {};
-
 +   const dispatch = createEventDispatcher<{ valuechange: number }>();
   </script>
 ```
@@ -192,24 +192,24 @@ _./src/App.svelte_
     import SingleColorEditor from "./color-picker/single-color-editor.svelte";
 
     let red = 128;
--    const onChange = (value: number) => {
--     red = value;
--    };
 
-+    function handleValueChanged(event: CustomEvent<number>) {
-+      // Just in case we want to reuse this for more than one event
-+      if (event.type === "valuechange") {
-+        red = event.detail;
-+      }
-+    }
+-   const onChange = (value: number) => {
+-     red = value;
+-   };
++   function handleValueChanged(event: CustomEvent<number>) {
++     // Just in case we want to reuse this for more than one event
++     if (event.type === "valuechange") {
++       red = event.detail;
++     }
++   }
   </script>
 
   <main class="root">
     <SingleColorEditor
       name="Red"
       value={red}
--      onChange={onChange}
-+      on:valuechange={handleValueChanged}
+-     onChange={onChange}
++     on:valuechange={handleValueChanged}
     />
     {red}
   </main>
@@ -330,9 +330,9 @@ _./src/App.svelte_
   <script lang="ts">
 +   import ColorEditor from "./color-picker/color-editor.svelte";
 -   import SingleColorEditor from "./color-picker/single-color-editor.svelte";
-
+-
 -   let red = 128;
-
+-
 -   function handleValueChanged(event: CustomEvent<number>) {
 -     // Just in case we want to reuse this for more than one event
 -     if (event.type === "valuechange") {
@@ -375,6 +375,7 @@ _./src/App.svelte_
 ```diff
   <script lang="ts">
     import ColorEditor from "./color-picker/color-editor.svelte";
++
 +   let red = 50;
 +   let blue = 200;
 +   let green = 10;
@@ -403,7 +404,7 @@ _./src/color-picker/color-editor.svelte_
     export let red = 128;
     export let green = 128;
     export let blue = 128;
-
+-
 -   const handleValueChanged = (eventInfo: CustomEvent<{ name: string; value: number }>) => {
 -     console.log(eventInfo.detail.name, eventInfo.detail.value);
 -   };
@@ -442,10 +443,11 @@ _./src/App.svelte_
   <script lang="ts">
 +   import type { ValueChangePayload } from './color-picker/model';
     import ColorEditor from "./color-picker/color-editor.svelte";
+
     let red = 50;
     let blue = 200;
     let green = 10;
-
++
 +   const handleValueChanged = (eventInfo: CustomEvent<ValueChangePayload>) => {
 +     switch (eventInfo.detail.name) {
 +       case "Red":
@@ -505,9 +507,10 @@ _./src/App.svelte_
 
 ```diff
   <script lang="ts">
-+  import type { ValueChangePayload } from './color-picker/model';
-+   import ColorDisplay from "./color-picker/color-display.svelte";
+    import type { ValueChangePayload } from './color-picker/model';
     import ColorEditor from "./color-picker/color-editor.svelte";
++   import ColorDisplay from "./color-picker/color-display.svelte";
+
     let red = 50;
     let blue = 200;
     let green = 10;
@@ -558,42 +561,26 @@ _./src/App.svelte_
 Sometimes defining interfaces for the payload and consuming it in the parent components can be a bit tedious,
 maybe we could go easy, just extract the events payload from the component, let's see how:
 
-_./src/tools/extract-event-payload.ts_
-
-```ts
-import type { SvelteComponentTyped } from "svelte";
-
-export type EventsHandlers<Component> = Component extends SvelteComponentTyped<
-  unknown,
-  infer EventsMap,
-  unknown
->
-  ? {
-      [Event in keyof EventsMap]: (e: EventsMap[Event]) => void;
-    }
-  : never;
-```
-
 Now let's go to the app component, we don't need to import the interface:
 
 _./src/app.ts_
 
 ```diff
 <script lang="ts">
-+  import type {EventsHandlers} from './tools/extract-event-payload';
--  import type { ValueChangePayload } from "./color-picker/model";
++ import type { ComponentEvents } from "svelte";
+- import type { ValueChangePayload } from "./color-picker/model";
   import ColorDisplay from "./color-picker/color-display.svelte";
   import ColorEditor from "./color-picker/color-editor.svelte";
+
   let red = 50;
   let blue = 200;
   let green = 10;
 
-+  type ColorEditorEventHandlers = EventsHandlers<ColorEditor>;
++ type ColorEditorEvents = ComponentEvents<ColorEditor>;
 
--  const handleValueChanged = (
-+  const handleValueChanged : ColorEditorEventHandlers['valuechange']  = (
--    eventInfo: CustomEvent<ValueChangePayload>
-+    eventInfo
+  const handleValueChanged = (
+-   eventInfo: CustomEvent<ValueChangePayload>
++   eventInfo: ColorEditorEvents["valuechange"]
   ) => {
 ```
 
