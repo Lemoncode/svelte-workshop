@@ -25,7 +25,7 @@
   $: total = subtotal + vat;
 
   export const removeItem = (item: Item) => {
-    // Svelte's reactivity is triggered by assignments. Therefore push, pop, slice etc do not work
+    // Svelte's reactivity is triggered by assignments. Therefore push, pop, splice etc do not work
     order.itemCollection = order.itemCollection.filter((e) => e !== item);
   };
 </script>
@@ -58,7 +58,7 @@
 
 <div class="total-container">
   <h5>Subtotal: {subtotal}</h5>
-  <h5>VAT:{vat}</h5>
+  <h5>VAT: {vat}</h5>
   <h5>Total: {total}</h5>
 </div>
 

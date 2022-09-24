@@ -115,11 +115,11 @@ _./src/orders/order.svelte_
 ```diff
   <h1>Orders</h1>
 + {#each order.itemCollection as item, index (index)}
-+    <span>{item.name}</span>
-+    <span>{item.quantity}</span>
-+    <span>{item.price}</span>
-+    <span>here goes total</span>
-+    <button>Delete</button>
++   <span>{item.name}</span>
++   <span>{item.quantity}</span>
++   <span>{item.price}</span>
++   <span>here goes total</span>
++   <button>Delete</button>
 + {/each}
 ```
 
@@ -197,7 +197,7 @@ If you give a try you will check that the total is being calculated.
     let total = 0;
 
 +   export const removeItem = (item: Item) => {
-+     // Svelte's reactivity is triggered by assignments. Therefore push, pop, slice etc do not work
++     // Svelte's reactivity is triggered by assignments. Therefore push, pop, splice etc do not work
 +     order.itemCollection = order.itemCollection.filter((e) => e !== item);
 +   }
   </script>
@@ -222,7 +222,7 @@ _./src/order/order.svelte_
      <button on:click={() => removeItem(index)}>Delete</button>
    </div>
 +  <div class="add-container">
-+    <button on:click={() => order.itemCollection = [...order.itemCollection, createNewItem()]} >Add</button>
++    <button on:click={() => order.itemCollection = [...order.itemCollection, createNewItem()]}>Add</button>
 +  </div>
 
   <style>
@@ -248,12 +248,12 @@ what would happen?
 
 ```diff
   <div class="add-container">
-    <button on:click={
--      () => order.itemCollection = [...order.itemCollection, createNewItem()]
-+      () => {
-+          order.itemCollection.push(createNewItem())
-+        }
-      } >Add</button>
+-   <button on:click={() => order.itemCollection = [...order.itemCollection, createNewItem()]}>Add</button>
++   <button
++     on:click={() => {
++       order.itemCollection.push(createNewItem());
++     }}
++   >Add</button>
   </div>
 ```
 
@@ -261,12 +261,12 @@ It wont' work because there's no assignment and svelte does not notice about the
 update, but what if we try something like?
 
 ```diff
-    <button on:click={
-      () => {
-          order.itemCollection.push(createNewItem())
-+          order.itemCollection = order.itemCollection;
-        }
-      } >Add</button>
+  <button
+    on:click={() => {
+      order.itemCollection.push(createNewItem());
++     order.itemCollection = order.itemCollection;
+    }}
+  >Add</button>
 ```
 
 It works, there is an assignment... but what an ugly code :D
@@ -285,14 +285,14 @@ _./src/orders/order.svelte_
 
 + <div class="total-container">
 +   <h5>Subtotal: {subtotal}</h5>
-+   <h5>VAT:{vat}</h5>
++   <h5>VAT: {vat}</h5>
 +   <h5>Total: {total}</h5>
 + </div>
 
   <styles>
     // (...)
 +   .total-container {
-+     display:flex;
++     display: flex;
 +     justify-content: flex-end;
 +     gap: 50px;
 +     margin-top: 20px;
