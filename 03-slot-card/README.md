@@ -116,10 +116,10 @@ _./src/app.svelte_
 -   <CardComponent/>
 -   <CardComponent/>
 +   <CardComponent>
-+    <h3>Body Card A</h3>
++     <h3>Body Card A</h3>
 +   </CardComponent>
 +   <CardComponent>
-+    <h3>Body Card B</h3>
++     <h3>Body Card B</h3>
 +   </CardComponent>
   </main>
 ```
