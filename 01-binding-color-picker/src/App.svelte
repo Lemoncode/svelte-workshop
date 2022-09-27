@@ -1,17 +1,13 @@
 <script lang="ts">
-  import type { ValueChangePayload } from "./color-picker/model";
-  import type {EventsHandlers} from './tools/extract-event-payload';
-  import ColorDisplay from "./color-picker/color-display.svelte";
-  import ColorEditor from "./color-picker/color-editor.svelte";
+  import ColorDisplay from "./components/color-picker/color-display.svelte";
+  import type { ValueChangePayload } from "./components/color-picker/model";
+  import ColorEditor from "./components/color-picker/color-editor.svelte";
+
   let red = 50;
   let blue = 200;
   let green = 10;
 
-  type ColorEditorEventHandlers = EventsHandlers<ColorEditor>;
-
-  const handleValueChanged : ColorEditorEventHandlers['valuechange'] = (
-    eventInfo
-  ) => {
+  const handleValueChanged = (eventInfo: CustomEvent<ValueChangePayload>) => {
     switch (eventInfo.detail.name) {
       case "Red":
         red = eventInfo.detail.value;
@@ -31,6 +27,9 @@
     R: {red}, G: {green}, B: {blue}
   </div>
   <ColorEditor {red} {green} {blue} on:valuechange={handleValueChanged} />
+  {red}
+  {green}
+  {blue}
 </main>
 
 <style>

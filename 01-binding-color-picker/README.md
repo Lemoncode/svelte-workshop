@@ -22,6 +22,10 @@ npm install
   components.
 
 ```bash
+md components
+```
+
+```bash
 md color-picker
 ```
 
@@ -37,7 +41,7 @@ md color-picker
     like events or use two way binding (this can be ok meanwhile the binding is
     contained in the same component scope).
 
-_./color-picker/single-color-editor.svelte_
+_./components/color-picker/single-color-editor.svelte_
 
 ```svelte
 <script lang="ts">
@@ -55,7 +59,7 @@ _./App.svelte_
 
 ```svelte
 <script lang="ts">
-  import SingleColorEditor from "./color-picker/single-color-editor.svelte";
+  import SingleColorEditor from "./components/color-picker/single-color-editor.svelte";
   let red = 128;
 </script>
 
@@ -114,7 +118,7 @@ _./src/App.svelte_
 
 And let's provide a callback property to the component:
 
-_./color-picker/single-color-editor.svelte_
+_./components/color-picker/single-color-editor.svelte_
 
 ```diff
 <script lang="ts">
@@ -154,12 +158,14 @@ _./App.svelte_
 </main>
 ```
 
+And Let's give a try
+
 That was cool, specially if we come from a React background, buuut Svelte offers us another flavor more Vue style, and event dispatcher, let's give a try:
 
 In our child component we will instantiate a new event dispatcher (this must be
 called before the component is instantiated).
 
-_./color-picker/single-color-editor.svelte_
+_./components/color-picker/single-color-editor.svelte_
 
 ```diff
 <script lang="ts">
@@ -174,6 +180,8 @@ _./color-picker/single-color-editor.svelte_
 ```
 
 Now on let's dispatch the value-change event:
+
+_./components/color-picker/single-color-editor.svelte_
 
 ```diff
 <input id="color" type="range" min="0" max="255" bind:value
@@ -215,17 +223,15 @@ _./App.svelte_
 </main>
 ```
 
+Let's give a try...
+
 > More info about typing component events: https://github.com/sveltejs/language-tools/blob/master/docs/preprocessors/typescript.md#typing-component-events
 
-Now a question may arise... what if I want to bubble up a dispatch event to an ancestor
-that is not direct, do I have to recreate a dispatcher per event? The answer is NO,
-Svelte offers a shortcut for this (on:mMessage, more info: https://svelte.dev/tutorial/event-forwarding):
+Now a question may arise... what if I want to bubble up a dispatch event to an ancestor that is not direct, do I have to recreate a dispatcher per event? The answer is NO, Svelte offers a shortcut for this (on:Message, more info: https://svelte.dev/tutorial/event-forwarding):
 
-Let's keep on building our component, we got one slider for the red component, but we
-need two more, let's create a super component that will instantiate the three
-color components.
+Let's keep on building our component, we got one slider for the red component, but we need two more, let's create a super component that will instantiate the three color components.
 
-_./color-picker/color-editor.svelte_
+_./components/color-picker/color-editor.svelte_
 
 ```svelte
 <script lang="ts">
@@ -273,7 +279,7 @@ Ok, good start... but what if we want to use the same dispatcher for all the sin
 
 This time we are going to use an elaborated payload with a name and value property, let's define it an interface:
 
-_./color-picker/model.ts_
+_./components/color-picker/model.ts_
 
 ```ts
 export interface ValueChangePayload {
@@ -282,7 +288,7 @@ export interface ValueChangePayload {
 }
 ```
 
-_./color-picker/single-color-editor.svelte_
+_./components/color-picker/single-color-editor.svelte_
 
 ```diff
 <script lang="ts">
@@ -309,10 +315,10 @@ _./color-picker/single-color-editor.svelte_
 
 And in the main editor:
 
-_./src/color-picker/color-editor.svelte.ts_
+_./src/components/color-picker/color-editor.svelte.ts_
 
 ```diff
-+ import type { ValueChangePayload } from './single-color-editor.svelte';
++ import type { ValueChangePayload } from './model';
 // ...
 
 -  const handleValueChanged = () => {
@@ -329,7 +335,7 @@ _./src/app.svelte_
 
 ```diff
 <script lang="ts">
-+  import ColorEditor from './color-picker/color-editor.svelte';
++  import ColorEditor from './components/color-picker/color-editor.svelte';
 -  import SingleColorEditor from './color-picker/single-color-editor.svelte';
 
 -  let red = 128;
@@ -388,14 +394,11 @@ _./src/app.svelte_
 </main>
 ```
 
-Not bad, values are display in each of the slider buuuut they changes are not reflected in the app
-component, we need to bubble up the event to the app component, in order to avoid creating an intermediate
-dispatcher on our color editor, we can take a shortcut, use event forwarding: https://svelte.dev/tutorial/event-forwarding
+Not bad, values are display in each of the slider buuuut they changes are not reflected in the app component, we need to bubble up the event to the app component, in order to avoid creating an intermediate dispatcher on our color editor, we can take a shortcut, use event forwarding: https://svelte.dev/tutorial/event-forwarding
 
-Let's go for that, we just simplify _color-editor_ we are not going to delegate the _valueChange_ event
-handling to the parent component.
+Let's go for that, we just simplify _color-editor_ we are going to delegate the _valueChange_ event handling to the parent component.
 
-_./src/color-editor.svelte_
+_./src/components/color-editor.svelte_
 
 ```diff
 <script lang="ts">
@@ -442,7 +445,7 @@ _./src/app.svelte_
 
 ```diff
 <script lang="ts">
-+  import type { ValueChangePayload } from './color-picker/model';
++  import type { ValueChangePayload } from './components/color-picker/model';
   import ColorEditor from './color-picker/color-editor.svelte';
   let red = 50;
   let blue = 200;
@@ -473,9 +476,7 @@ _./src/app.svelte_
 </main>
 ```
 
-> We have used single variables for each component just to show the forward event handling, we could
-> encapsulate this values in an object (color={red, green, blue}) and get our code simpler, if you
-> want to give a try it could be a good exercise to try it out.
+> We have used single variables for each component just to show the forward event handling, we could encapsulate this values in an object (color={red, green, blue}) and get our code simpler, if you want to give a try it could be a good exercise to try it out.
 
 Now let's create a _color-display_ that will show the current color we are displaying (if you want you can try and take this as an excercise):
 
@@ -507,9 +508,8 @@ _./src/app.svelte_
 
 ```diff
 <script lang="ts">
-+  import type { ValueChangePayload } from './color-picker/model';
-+ import ColorDisplay from './color-picker/color-display.svelte';
-  import ColorEditor from './color-picker/color-editor.svelte';
++ import ColorDisplay from './components/color-picker/color-display.svelte';
+  import ColorEditor from './components/color-picker/color-editor.svelte';
   let red = 50;
   let blue = 200;
   let green = 10;
@@ -555,10 +555,9 @@ _./src/app.svelte_
 + </style>
 ```
 
-## Appendix TypeScript Magic
+## [Time Permitting - Mention] Appendix TypeScript Magic
 
-Sometimes defining interfaces for the payload and consuming it in the parent components can be a bit tedious,
-maybe we could go easy, just extract the events payload from the component, let's see how:
+Sometimes defining interfaces for the payload and consuming it in the parent components can be a bit tedious, maybe we could go easy, just extract the events payload from the component, let's see how:
 
 _./src/tools/extract-event-payload.ts_
 
@@ -601,5 +600,4 @@ _./src/app.ts_
 
 ## Excercise
 
-And to wrap all this why not creating a _ColorPicker_ component that will bring together the
-color browser and the editor in one?
+And to wrap all this why not creating a _ColorPicker_ component that will bring together the color browser and the editor in one?
