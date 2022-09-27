@@ -13,7 +13,11 @@ We will simulate a simple order system, and we will calculate total, subtotal an
 npm install
 ```
 
-- Let's create in `/src` a subfolder called _orders_
+- Let's create in `/src/components` a subfolder called _orders_
+
+```bash
+components
+```
 
 ```bash
 md orders
@@ -43,7 +47,7 @@ export const createNewItem = (): Item => ({
 
 Let's define now the order component, we will start with something simple:
 
-_./src/order.svelte_
+_./src/components/order.svelte_
 
 ```svelte
 <h1>Order</h1>
@@ -51,7 +55,7 @@ _./src/order.svelte_
 
 Let's define a barrel for the _orders_ subfolder.
 
-_./src/orders/index.ts_
+_./src/components/orders/index.ts_
 
 ```typescript
 export { default as OrderComponent } from "./order.svelte";
@@ -64,7 +68,7 @@ _./src/app.svelte_
 
 ```svelte
 <script lang="ts">
-  import { OrderComponent } from "./orders";
+  import { OrderComponent } from "./components/orders";
 </script>
 
 <main>
@@ -81,10 +85,9 @@ _./src/app.svelte_
 npm run dev
 ```
 
-- Time to come back and start adding some functionality to our order component, let's import the interfaces and factory
-  from the _order.model_, add some mock data and define some variables to hold the calculated fields (subtotal, vat, price).
+- Time to come back and start adding some functionality to our order component, let's import the interfaces and factory from the _order.model_, add some mock data and define some variables to hold the calculated fields (subtotal, vat, price).
 
-_./src/order.svelte_
+_./src/components/order.svelte_
 
 ```diff
 +<script lang="ts">
@@ -125,7 +128,7 @@ _./src/order.svelte_
 
 - If we run the example, we can check that the data is being shown although the layout looks a bit ugly, let's add some styling, we will add a grid layout and create a header section.
 
-_./src/order.svelte_
+_./src/components/order.svelte_
 
 ```diff
 + <div class="items-container">
@@ -155,9 +158,9 @@ _./src/order.svelte_
 
 - Let's start the project again and check that the layout starts to look nicer.
 
-- Is time prepare the edit mode:
+- Is time to prepare the edit mode:
 
-_./src/order.svelte_
+_./src/components/order.svelte_
 
 ```diff
  {#each order.itemCollection as item, index}
@@ -176,6 +179,8 @@ Not bad, in this case we just benefit from the binding two way, that's ok becaus
 
 - Time to calculate the total amount for each item, easy pc (very similar to React in this case):
 
+_./src/components/order.svelte_
+
 ```diff
 
       <input bind:value={item.name}/>
@@ -188,11 +193,11 @@ Not bad, in this case we just benefit from the binding two way, that's ok becaus
 
 If you give a try you will check that the total is being calculated.
 
-- Now let's implement the delete button, we will use the _#on:click_ directive to remove the item from the list,
-  in this case we have to take care, in order to notify svelte we need to make an assignment (we cannot just
-  simple remove that item from array in a mutable way).
+- Now let's implement the delete button, we will use the _#on:click_ directive to remove the item from the list, in this case we have to take care, in order to notify svelte we need to make an assignment (we cannot just simple remove that item from array in a mutable way,
+  ... but there's some trick into it we cover it later on).
 
-````diff
+_./src/components/order.svelte_
+
 ```diff
   let subtotal = 0;
   let vat = 0;
@@ -213,17 +218,18 @@ If you give a try you will check that the total is being calculated.
 -    <button>Delete</button>
 +    <button on:click={() => removeItem(item)}>Delete</button>
 // (...)
-````
+```
 
 If you give a try you will realize that... we have removed the only item we had on the list.
 
 - Let's add an option to add more items to the order list:
 
-_./src/order.svelte_
+_./src/components/order.svelte_
 
 ```diff
     <button on:click={() => removeItem(index)}>Delete</button>
   </div>
+  {/each}
 +  <div class="add-container">
 +    <button on:click={() => order.itemCollection = [...order.itemCollection, createNewItem()]} >Add</button>
 +  </div>
@@ -246,8 +252,10 @@ _./src/order.svelte_
 
 We are just assigning a new array that contains the old array and the new item.
 
-Let's play a little bit with reactivity and assigments, if we try this
+Let's play a little bit with reactivity and assignments, if we try this
 what would happen?
+
+_./src/components/order.svelte_
 
 ```diff
   <div class="add-container">
@@ -266,7 +274,7 @@ update, but what if we try something like?
 ```diff
     <button on:click={
       () => {
-          order.itemCollection.push(createNewItem())
+          order.itemCollection.push(createNewItem());
 +          order.itemCollection = order.itemCollection;
         }
       } >Add</button>
