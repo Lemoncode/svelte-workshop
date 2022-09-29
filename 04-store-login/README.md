@@ -5,9 +5,9 @@ to share data between components, without having to pass it around using props.
 
 The guys at Svelte have broken down the concept into two pieces:
 
-- Context: they let us share data between components at certain level of the
+- **Context:** they let us share data between components at certain level of the
   hierarchy.
-- Stores: the allow us to share data and be reactive to changes in the data.
+- **Stores:** they allow us to share data and be reactive to changes in the data.
 
 If we want to fullfil the same goal as with React.Context we will have to make
 use of both.
@@ -28,10 +28,9 @@ npm install
 
   - A login page.
   - A Navbar layout showing the name of the user logged in.
-  - A second page that will display the user name and will let the user
-    update it (and this change will get reflected throughout the application).
+  - A second page that will display the user name and will let the user update it (and this change will get reflected throughout the application).
 
-- We are going to create a folder called _pages_ under _src_ path and create inside a login page,
+- We are going to create a folder called _pages_ under _src_ path and we will create a login page,
   a main page and a barrel:
 
 _./src/pages/login-page.svelte_
@@ -44,7 +43,9 @@ _./src/pages/login-page.svelte_
 <div class="root">
   <h1>Login Page</h1>
   <input bind:value={username} />
-  <button on:click={() => console.log("It should navigate to home page")}>Login</button>
+  <button on:click={() => console.log("It should navigate to home page")}
+    >Login</button
+  >
 </div>
 
 <style>
@@ -63,7 +64,6 @@ _./src/pages/login-page.svelte_
     width: 300px;
   }
 </style>
-
 ```
 
 _./src/pages/home-page.svelte_
@@ -144,7 +144,7 @@ Now we need a SPA router (like react-router), let's install _svelte-navigator_:
 npm install svelte-navigator --save
 ```
 
-Let's define the routes and the layout usage in our _App.svelte_
+Let's define the routes and the layout in our _App.svelte_
 
 _./src/App.svelte_
 
@@ -156,23 +156,23 @@ _./src/App.svelte_
 </script>
 
 <main>
-    <Router>
-      <NavBar />
-      <Route path="/">
-        <LoginPage />
-      </Route>
-      <Route path="home">
-        <HomePage />
-      </Route>
-    </Router>
+  <Router>
+    <NavBar />
+    <Route path="/">
+      <LoginPage />
+    </Route>
+    <Route path="home">
+      <HomePage />
+    </Route>
+  </Router>
 </main>
 
 <style>
-    main {
+  main {
     display: grid;
     grid-template-rows: auto 1fr;
     flex-grow: 1;
-    }
+  }
 </style>
 ```
 
@@ -183,6 +183,7 @@ _./src/pages/login-page.svelte_
 ```diff
 <script lang="ts">
 +  import { useNavigate } from "svelte-navigator";
++
 +  const navigate = useNavigate();
   let username = "Mr. Nobody";
 </script>
@@ -226,10 +227,10 @@ Let's go for it:
   case we will store an object, so we can check the difference between replacing
   the value and updating it.
 
-We can create an store
+The steps to create the store are the following:
 
 - We will import _writable_ store from _svelte-store_: this will allow
-  us to hold a global data and be able to update it.
+  us to hold global data and be able to update it.
 
 - Then we will initialize the store with the initial value, it could be a simple string,
   but for this example we will use an object just to allow us to check the difference between replacing the value and updating it.
@@ -277,7 +278,8 @@ _./src/pages/login-page.svelte_
 </div>
 ```
 
-- If we use _set_ we are replacing the whole object without taking into consideration the previous value, we may want to keep a reference to the old object and use the spread operator to keep the previous values and just replace only the one affected by the change, we can do this by using the store _update_ method, it could be something like:
+- If we use _set_ we are replacing the whole object without taking into consideration the previous value, if we want to keep some level of immutability or we need to get
+  the latest cut of the previous value we can use _update_.
 
 _./src/pages/login-page.svelte_
 
@@ -291,7 +293,7 @@ _./src/pages/login-page.svelte_
 
 - Cool, now let's hop onto the _navBar_ component and display the user's name:
   - We will import the _userInfoStore_ that we have created.
-  - We will start by subscribing to store changes, and then update user Info.
+  - We will start by subscribing to store changes, and then update the user Info.
 
 _./src/common/navbar.svelte_
 
@@ -310,12 +312,11 @@ _./src/common/navbar.svelte_
 + <h2>User Logged in: {userInfo.username}</h2>
 ```
 
-This approach is okeish but we would have to take care of doing even some cleanup in the component (unsubscribe), Svelte offers us a short cut (just a reactive assignment):
+This approach is okeish but we would have to take care of doing even some cleanup in the component (unsubscribe), Svelte offers us some shortcuts (is just a reactive assignment):
 
-- To access the value of the _userInfoStore_ we have to prefix the store with the
+- To access the content of the _userInfoStore_ we have to prefix the store with the
   _$_ sign,
-- We will ask to listen the userInfoStore for changes, in order to use this value we have to use the _$_ sign again (in this case to make reactive this piece of code, this would be similar
-  in React to useEffect [userInfoStore]).
+- We will ask to listen the userInfoStore for changes, in order to use this value we have to use the _$_ sign again.
 
 _./src/common/navbar.svelte_
 
@@ -336,8 +337,7 @@ _./src/common/navbar.svelte_
 > Note we don't need to define the _userInfoStore_ using _let_, _Svelte_ will detect this and
 > initialize it for us.
 
-This is not bad, buuuuuut.... we can give it one more turn :), since we are using _$userInfoStore_
-this is reactive a statement (tip $ prefix :)), why not just use it directly in our _html_:
+This is not bad, buuuuuut.... we can give it one more turn :), since we are using _$userInfoStore_ this is reactive a statement (remember that we are using the $ prefix :)), why not just use it directly in our _html_:
 
 ```diff
 <script lang="ts">
@@ -350,9 +350,9 @@ this is reactive a statement (tip $ prefix :)), why not just use it directly in 
 ```
 
 - Let's jump into the home page, in this page we got a button that toggles the user's name
-  visibility, showing the user name in this case is a piece of cake...
+  visibility, so... showing the user name is just a piece of cake...
 
-> Exercise: try to do it by our own, before just copying the solution.
+> Optional Exercise: try to do it by our own, before just copying the solution.
 
 How this could work:
 
@@ -379,8 +379,7 @@ _./src/pages/home-page.svelte_
 </div>
 ```
 
-- So far so good, but now let's go for a twist, we want to be able to update the user's name, from the home page, we can just bind
-  to _userInfo.username_
+- So far so good, but now let's go for a twist, we want to be able to update the user's name, from the home page, we can just bind to _$userInfo.username_
 
 ```diff
 {#if showLoggedInUser}

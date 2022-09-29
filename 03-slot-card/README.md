@@ -1,7 +1,6 @@
 # Summary
 
-In React we are used to the _children_ property of a componente, when we work
-with Svelte we get _Slots_ and this includes some extra goodies:
+In React when we want to inject JSX content into a given component we use the _children_ property, when we work with Svelte we got _Slots_ and this includes some extra goodies:
 
 - We can have a single slot or multiple named slots.
 - We can just add a default markup in case a given slot is not provided.
@@ -60,7 +59,7 @@ _./src/common/index.ts_
 export { default as CardComponent } from "./card.svelte";
 ```
 
-Let's instantiate two instance of the component in our main _app_
+Let's instantiate two instances of the component in our main _app_
 
 _./src/app.svelte_
 
@@ -84,7 +83,7 @@ _./src/app.svelte_
 
 - Cool,time to play with slots, we want to display in each card a different body.
 
-- Let's create in our card componente slot for the body.
+- Let's define in our card component a slot for the body.
 
 _./src/common/card.svelte_
 
@@ -103,7 +102,7 @@ _./src/common/card.svelte_
 </div>
 ```
 
-- Now let's define the body content for our card components instantiated in our app.
+- Now let's define the body content for our card components instances.
 
 _./src/app.svelte_
 
@@ -125,7 +124,7 @@ _./src/app.svelte_
 ```
 
 - So far so good, but what if we want to include a new slot for the card heading?
-  We can used named slots, let's do some refactor:
+  We can use named slots, let's do some refactor:
 
 _./src/common/card.svelte_
 
@@ -134,7 +133,7 @@ _./src/common/card.svelte_
   <!-- header -->
   <div class="card-header">
 +   <slot name="header">
-    <h2>Default header</h2>
+      <h2>Default header</h2>
 +   </slot>
   </div>
   <!-- body -->
@@ -166,9 +165,5 @@ _./src/app.svelte_
 </main>
 ```
 
-We can have some additional control:
-
-- Define a default content in case the slot is not informed.
-- Pass props between the slot and the parent component.
-
-We will skip this part for this training.
+Another cool feature that card components include are passing props between
+the slot and the parent component.We will skip this part for this training.
