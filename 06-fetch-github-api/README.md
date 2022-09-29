@@ -4,7 +4,7 @@ In this example we are going to query a rest api.
 
 We will use three approaches:
 
-- In a simple scenarios just mix the `fetch` function with the markup.
+- In a simple scenario just mix the `fetch` function with the markup.
 
 - In a more complex scenario use the Svelte component lifecycle
 
@@ -22,8 +22,7 @@ npm install
 
 - Let's create a _github-list_ folder.
 
-- We will query the github api to retrieve the members of a given organization,
-  in order to do that we will create a model and a separate api file:
+- We will query the github api to retrieve the members of a given organization, in order to do that we will create a model and a separate api file:
 
 _./src/components/github-list/model.ts_
 
@@ -50,8 +49,7 @@ export const fetchGithubMembers = async (
 };
 ```
 
-- Let's create a _github-list_ component, first let's add some styling
-  (we will use css grid)
+- Let's create a _github-list_ component, first let's add some styling (we will use css grid)
 
 _./src/components/github-list/github-list.svelte_
 
@@ -82,7 +80,7 @@ _./src/components/github-list/github-list.svelte_
 </style>
 ```
 
-- Let's import the api module that we created:
+- Let's import the api module that we have created:
 
 _./src/components/github-list/github-list.svelte_
 
@@ -144,9 +142,7 @@ _./src/App.svelte_
 npm run dev
 ```
 
-- So far so good, but this approach does not cover more complex scenarios,
-  for instance what if we just add an input to change the organization name
-  and a button to trigger the search? In this case we can make of the builtin Svelte lifecycle for components.
+- So far so good, but this approach does not cover more complex scenarios, for instance what if we just add an input to change the organization name and a button to trigger the search? In this case we can make use of the builtin Svelte lifecycle for components.
 
 - Let's add the input and the button:
 
@@ -162,7 +158,7 @@ _./src/components/github-list/github-list.svelte_
 ```
 
 - Let's create two variables to hold the current filter and members list,
-  then create a method to fetch the data based on the current organzation filter:
+  then create a method to fetch the data based on the current organization filter:
 
 _./src/components/github-list/github-list.svelte_
 
@@ -233,7 +229,7 @@ _./src/components/github-list/github-list.svelte_
  {/await}
 ```
 
-- Let's implement the now the search button click handler:
+- Let's implement now the search button click handler:
 
 ```diff
 <input bind:value={organizationName} />
@@ -248,10 +244,7 @@ _./src/components/github-list/github-list.svelte_
 npm run dev
 ```
 
-- [Refactor] [Time Permitting] Right now we had implemented this in
-  a vary traditional way, if we were working with React we could think
-  about extracting some of this functionality into a custom hook, let's
-  see how to do this in Svelte using stores and context.
+- [Refactor] [Time Permitting] Right now we had implemented this in a very traditional way, if we were working with React we could think about extracting some of this functionality into a custom hook, let's see how to do this in Svelte using stores and context.
 
 - First of all we can try to isolate the members handling into a
   store:

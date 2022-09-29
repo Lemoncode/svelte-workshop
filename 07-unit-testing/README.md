@@ -28,8 +28,7 @@ _./greet.svelte_
 <h1>Hello Human !</h1>
 ```
 
-- Let's get into the party, first let's install _vitest_
-  (this is not needed if you are using svelte kit)
+- Let's get into the party, first let's install _vitest_.
 
 ```bash
 npm install -D vitest
@@ -61,15 +60,13 @@ describe("greet business", () => {
 });
 ```
 
-- If we copy this, type definitions are missing, lets install the Jest one
-  (yups, vitest syntax is compatible with Jest :)).
+- If we copy this, type definitions are missing, lets install the Jest one (vitest syntax is compatible with Jest).
 
 ```bash
 npm install -D @types/jest
 ```
 
-- If we try to run again we get error, it cannot identify things like
-  _describe_ and _it_, let's ask vitest to use globals, let's update our
+- If we try to run it again we get an  error, it cannot identify things like _describe_ and _it_, let's ask vitest to use globals, let's update our
   vite config:
 
 _./vite.config.js_
@@ -150,18 +147,17 @@ _./package.json_
 npm run coverage
 ```
 
-- That was nice, is time to start testing components, let's try to test
-  our svelte greet component, if you come from the React background we
-  have good news for you, there's a testing library for svelte, this means
-  all that you have learned from React testing library will be applicable.
+- That was nice, is time to start testing components, let's try to test our svelte greet component, if you come from the React background we have good news for you, there's a testing library for svelte, this means all that you have learned from React testing library will be applicable.
 
 If we try to use it, we will get an error:
 
-Let's install testing library:
+Let's install the svelte testing library:
 
 ```bash
 npm i -D @testing-library/svelte
 ```
+
+Let's implement the sepc
 
 _./src/greet.spec.ts_
 
@@ -218,7 +214,7 @@ export default defineConfig({
 npm run test
 ```
 
-- Hurra ! We got a new error! :-@: _Error: Invalid Chai property: toBeInTheDocument_
+- Hurray ! We got a new error! :-@: _Error: Invalid Chai property: toBeInTheDocument_
 
 We are using Jest matchers not chai, we need to add some extra config
 to get this working.
@@ -231,8 +227,7 @@ _./src/setuptest.ts_
 import "@testing-library/jest-dom";
 ```
 
-And let's indicate in our vite config that we are going to use this
-setup file:
+And let's indicate in our vite config that we are going to use this setup file:
 
 _./vite.config.js_
 
@@ -252,11 +247,9 @@ export default defineConfig({
 });
 ```
 
-And now we got it working (you can try changing the _hello human !_ literal
-to any other and check that the test is failing).
+And now we got it working (you can try changing the _hello human !_ literal to any other and check that the test is failing).
 
-Let's refactor the greeting component to accept the name of the human to be
-greeted:
+Let's refactor the greeting component to accept the name of the human to be greeted:
 
 _./src/greet.svelte_
 
@@ -290,6 +283,7 @@ describe("greet component", () => {
   });
 });
 ```
+
 
 # References
 
