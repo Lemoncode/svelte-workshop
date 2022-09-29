@@ -1,7 +1,12 @@
 # Summary
 
-- Let's create two components that will be used to display a name
-  and edit a name and wrap it in a myname component.
+We are going to start playing with Svelte Context, in the example
+that we are going to build we will:
+
+- Create two components:
+
+  - One will will be used to display a name.
+  - The other one will be used to update the name.
 
 - We won't use props (yes, this is an overkill it's just for the
   sake of the example).
@@ -11,13 +16,12 @@
 - Then we will instantiate two instance of the myname component, and
   we will check that both components will share the same info :(.
 
-- Time to start using context, let's use it just to store a given string,
+- It's Time to start using svelte context, let's use it just to store a given string,
   what's going on? No reactivity !!!
 
-- Solution combine context with stores.
+- Solution is to combine context with stores.
 
-- Just to wrap up, we can create a provider to wrap all this context
-  definition.
+- And we will create a provider to wrap all this context definition.
 
 # Step By Step Guide
 
@@ -31,7 +35,7 @@ npm install
 
 - Let's create a model that will hold user information:
 
-_./src/name-component/model.ts_
+_./src/components/name-component/model.ts_
 
 ```ts
 export interface UserEntity {
@@ -39,14 +43,11 @@ export interface UserEntity {
 }
 ```
 
-- We will create a component that will let us display and edit a name and
-  we won't use props to pass data around (it's an overkill, but just to get
-  a simplified scenario).
+- As we have mentioned before, we will create a component that will let us display and edit a name and we won't use props to pass data around (it's an overkill, but just to get a simplified scenario).
 
-- To hold the data we will first use a store, and later on we will check
-  which limitations we have.
+- To hold the data we will first use a store, and later on we will check which limitations we are introducing.
 
-_./src/name-component/user.store.ts_
+_./src/components/name-component/user.store.ts_
 
 ```ts
 import type { UserEntity } from "./model";
@@ -59,7 +60,7 @@ export const userInfoStore = writable<UserEntity>({
 
 - Now let's create a component to display that info:
 
-_./src/name-component/name-display.svelte_
+_./src/components/name-component/name-display.svelte_
 
 ```svelte
 <script lang="ts">
@@ -71,7 +72,7 @@ _./src/name-component/name-display.svelte_
 
 - And a component to edit the name:
 
-_./src/name-component/name-edit.svelte_
+_./src/components/name-component/name-edit.svelte_
 
 ```svelte
 <script lang="ts">
@@ -83,7 +84,7 @@ _./src/name-component/name-edit.svelte_
 
 - Let's put it all together in a _name-component_:
 
-_./src/name-component/name-component.svelte_
+_./src/components/name-component/name-component.svelte_
 
 ```svelte
 <script lang="ts">
@@ -97,19 +98,19 @@ _./src/name-component/name-component.svelte_
 
 - And expose it via barrel:
 
-_./src/name-component/index.ts_
+_./src/components/name-component/index.ts_
 
 ```ts
 export { default as NameComponent } from "./name-component.svelte";
 ```
 
-- If we instantiate the component in our main app
+- Let's instantiate the component in our main app
 
 _./src/App.svelte_
 
 ```svelte
 <script lang="ts">
-  import { NameComponent } from "./name-component";
+  import { NameComponent } from "./components/name-component";
 </script>
 
 <main>
@@ -120,7 +121,7 @@ _./src/App.svelte_
 
 And run the example, so far so good everything seems to work fine.
 
-Buuut... let's try to instantiate two instances of the component:
+Buuut... let's try to instantiate two instances of the same component:
 
 _./src/App.svelte_
 
@@ -136,31 +137,28 @@ _./src/App.svelte_
 </main>
 ```
 
-What's going on? Since we are using an store both components are sharing
-the same data, this doesn't look like a good idea.
+What's going on? Since we are using a store both components are sharing the same data, this doesn't look like a good idea.
 
 What else can we do?
 
 Let' play with Svelte Context.
 
-Let's get rid of the store solution (temporarily :)) and let's start
-using a new api _context_ we got _setContext_ and _getContext_ we
-pass a key and we get a value...
+Let's get rid temporarily of the store solution and let's start using a new api _context_ we got _setContext_ and _getContext_ we pass a key and we get a value...
 
 This seems to be ok, but we will need to add an extra step to make it
-work, why? because Context in svelte:
+work, why? because the Context in svelte:
 
-- Allows you to call get and set context just when a component is initialized
-  (so no update in _onChange_ handlers like...).
+- Allows us to call get and set context just when a component is initialized
+  (so, updates in _onChange_ handlers won't work...).
 
 - Context is not reactive.
 
-So let's try first to add a "react" like approach:
+So let's try first to go using a "react" like approach:
 
 Let's initialize the value (in this case we will add some random number
-to check that bot name edit instances are initialized with different data)
+to check that both name edit instances are initialized with different data)
 
-_./src/name-component/name-component_
+_./src/components/name-component/name-component.svelte_
 
 ```diff
 <script lang="ts">
@@ -180,7 +178,7 @@ _./src/name-component/name-component_
 
 Then in the display and edit components:
 
-_./src/name-component/name-display.svelte_
+_./src/components/name-component/name-display.svelte_
 
 ```diff
 <script lang="ts">
@@ -195,7 +193,7 @@ _./src/name-component/name-display.svelte_
 +<h3>Username: {userInfo.username}</h3>
 ```
 
-_./src/name-component/name-edit.svelte_
+_./src/components/name-component/name-edit.svelte_
 
 ```diff
 <script lang="ts">
@@ -218,20 +216,18 @@ _./src/name-component/name-edit.svelte_
 + />
 ```
 
-Well if we run this, a good thing is that we got two different values
-on each component, that's nice...
+Well if we run this, a good thing is that we got two different values on each component, that's nice...
 
-BUT We will get no reactivity !! :-@, what's going on here? If we want
-to get reactivity with a context we have to combine it with stores,
-but in this case we will keep the store as private and just keep
-it for the context it self.
+BUT We will get no reactivity !! :-@ (try to edit the names), what's going on here? If we want to get reactivity within a context, we have to combine it with stores, but in this case we will keep the store as private just keep it for the context it self.
 
 Let's update our code:
 
 On the root name edit component we will set a context but this time
 we will assign an store to it:
 
-_./src/name-component/name-component.svelte_
+> Check how we are importing types and variables (thats a TypeScript config in Vite)
+
+_./src/components/name-component/name-component.svelte_
 
 ```diff
 <script lang="ts">
@@ -254,8 +250,7 @@ _./src/name-component/name-component.svelte_
 </script>
 ```
 
-- Now let's go for the display name component, since we are using an
-  store things get easier.
+- Now let's go for the display name component, since we are using a store things get easier.
 
 _./src/name-component/name-display.svelte_
 
@@ -275,11 +270,9 @@ _./src/name-component/name-display.svelte_
 +<h3>Username: {$userInfoStore.username}</h3>
 ```
 
-- It's time to update the edit name component, this time we will
-  just get access to the context in the component initialization and
-  we will use the store.
+- It's time to update the edit name component, this time we will just get access to the context in the component initialization and we will use the store.
 
-_./src/name-component/name-edit.svelte_
+_./src/components/name-component/name-edit.svelte_
 
 ```diff
 <script lang="ts">
@@ -309,12 +302,9 @@ _./src/name-component/name-edit.svelte_
 npm run dev
 ```
 
-- Now have coupled our root component _name_ component with the context
-  definition, but this not may be the case, maybe we just want to define our
-  context at a different level, in order to use this we can define our own provider,
-  let's refactor this:
+- We have coupled our root component _name_ component with the context definition, but this not may be the case, maybe we just want to define our context at a different level, in order to use this we can define our own provider, let's refactor this:
 
-_./src/name-component/user-info.provider.svelte_
+_./src/components/name-component/user-info.provider.svelte_
 
 ```svelte
 <script lang="ts">
@@ -366,7 +356,7 @@ export { default as NameComponent } from "./name-component.svelte";
 + export { default as UserInfoProvider } from "./user-info.provider.svelte";
 ```
 
-- And we can use it on our app component:
+- And we can just set our context on top of our app component:
 
 _./src/App.svelte_
 
@@ -390,11 +380,7 @@ _./src/App.svelte_
 Now you can give a try and enclose the second _NameComponent_ inside the
 first _userInfoProvider_
 
-- Let's do a final refactor, we have enclosed the instantiation of the
-  _userInfoStore_ inside of the provider, we could just enclose it in the
-  _user.store_ but if we want to avoid any other part of the app to access
-  the same instantiated store we could just move to our _user.store.ts_
-  but use a factory function instead:
+- Let's do a final refactor, we have enclosed the instantiation of the _userInfoStore_ inside of the provider, we could just enclose it in a separate file (the _user.store_ module) but if we want to avoid any other part of the app to access the same instantiated we could use use a factory function:
 
 _./user.store.ts_
 
@@ -433,7 +419,7 @@ _./user-info.provider.svelte_
 <slot />
 ```
 
-Not so bad, but the getContext and setContest are a bit clunky:
+Not so bad, but the getContext and setContext are a bit clunky:
 
 - You need to setup the right typing.
 - You need to remember the magic string.
