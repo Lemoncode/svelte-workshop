@@ -7,14 +7,10 @@
       {
         name: "test",
         quantity: 1,
-        price: 20,
+        price: 0,
       },
     ],
   };
-
-  let subtotal = 0;
-  let vat = 0;
-  let total = 0;
 
   $: subtotal = order.itemCollection.reduce((acc, item) => {
     return acc + item.price * item.quantity;
@@ -24,13 +20,13 @@
 
   $: total = subtotal + vat;
 
-  export const removeItem = (item : Item) => {
+  export const removeItem = (item: Item) => {
     // Svelte's reactivity is triggered by assignments. Therefore push, pop, slice etc do not work
     order.itemCollection = order.itemCollection.filter((e) => e !== item);
   };
 </script>
 
-<h1>Order</h1>
+<h1>Order Component</h1>
 
 <div class="items-container">
   <h3>Name</h3>
@@ -38,28 +34,25 @@
   <h3>Price</h3>
   <h3>Total</h3>
   <h3>Commands</h3>
-
-  {#each order.itemCollection as item, index(index)}
+  {#each order.itemCollection as item, index (index)}
     <input bind:value={item.name} />
     <input bind:value={item.quantity} type="number" />
     <input bind:value={item.price} type="number" />
     {item.price * item.quantity}
     <button on:click={() => removeItem(item)}>Delete</button>
   {/each}
-</div>
-
-<div class="add-container">
-  <button
-    on:click={() =>
-      (order.itemCollection = [...order.itemCollection, createNewItem()])}
-    >Add</button
-  >
-</div>
-
-<div class="total-container">
-  <h5>Subtotal: {subtotal}</h5>
-  <h5>VAT:{vat}</h5>
-  <h5>Total: {total}</h5>
+  <div class="add-container">
+    <button
+      on:click={() => {
+        order.itemCollection = [...order.itemCollection, createNewItem()];
+      }}>Add</button
+    >
+    <div class="total-container">
+      <h5>Subtotal: {subtotal}</h5>
+      <h5>VAT:{vat}</h5>
+      <h5>Total: {total}</h5>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -75,7 +68,6 @@
     flex-direction: column;
     margin-top: 10px;
   }
-
   .total-container {
     display: flex;
     justify-content: flex-end;

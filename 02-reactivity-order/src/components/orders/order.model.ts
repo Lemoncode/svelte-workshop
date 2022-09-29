@@ -11,5 +11,5 @@ export interface Order {
 export const createNewItem = (): Item => ({
   name: "",
   quantity: 1,
-  price: 0,
+  price: 20,
 });

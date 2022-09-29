@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { OrderComponent } from "./orders";
+  import { OrderComponent } from "./components/orders";
 </script>
 
 <main>
