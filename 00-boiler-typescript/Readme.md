@@ -1,7 +1,7 @@
 # Summary
 
-In this example, we will create a project from scratch using _deGit_
-and then add support for _TypeScript_
+In this example, we will create a project from scratch using _vite\_\_
+choosing \_TypeScript_ as the language, and install svelte prettier plugin.
 
 # Step By Step Guide
 
@@ -11,14 +11,15 @@ First let's create our project, we will call it "example-app",
 npm init vite
 ```
 
-Let's let install the vite tooling then you will go through a guided process:
+Let's let install the vite tooling, then we will go through a guided process:
 
 - First choose the right project name, e.g. "example-app"
 
-- Then choose the framework, in this case _svelte_ and as a variant
-  _svelte-ts_
+- Then choose the framework, in this case _svelte_ and choose the typescript
+  option
 
-A folder has been created (e.g. "example-app"), now you can
+A folder has been created (e.g. "example-app"), now you can dive into it
+and execute _npm install_ and execute _npm run dev_ to start the dev server.
 
 ```bash
 cd example-app
@@ -32,11 +33,14 @@ npm install
 npm run dev
 ```
 
+# IMPORTANT ADDITIONAL STEPS
+
 - Just one more thing to wrap up this example, to enhance your development
   experience, I encourage you to install the following VS Code plugins:
 
-- Svelte for Vs Code
-- Svelte Intellisense
+- [Svelte for Vs Code](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode)
+
+- [Svelte Intellisense](https://marketplace.visualstudio.com/items?itemName=ardenivanov.svelte-intellisense)
 
 - And if you use prettier is a good idea to install an additional package
   to get a good prettier integration when formatting code:

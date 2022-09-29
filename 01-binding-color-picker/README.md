@@ -4,10 +4,12 @@ In this example we will get started using properties and bindings.
 
 We will build a simple color picker control, we will:
 
-- Create a single componente that edit a single color componente.
-- A custom component that will group three single color componentes.
-- A colorBrowser that will display the color it self.
-- A colorPicker that will group all this components.
+- Create a single component that edit a single color value.
+- Create custom component that will group three single color componentes.
+- Create colorBrowser that will display the color it self.
+- Group it all this functionality in a colorPicker.
+
+We will learn how binding and events work in Svelte.
 
 # Step By Step Guide
 
@@ -18,7 +20,8 @@ We will build a simple color picker control, we will:
 npm install
 ```
 
-- Let's create a subfolder that will hold all the color picker
+- Let's create a subfolder that will hold components and inside of it a
+new one that will hold all the color picker
   components.
 
 ```bash
@@ -29,10 +32,10 @@ md components
 md color-picker
 ```
 
-- Time to create a single color slider edit component, we will use
+- It's time to create a single color slider edit component, we will use
   two way binding to bind the _value_ property with the input _value_
   property (this is ok to be used in a local scope, we could use
-  the React approach well, one way + callback), things to take into consideration:
+  the React approach as well, one way + callback), things to take into consideration:
 
   - We define _props_ by _exporting_ them on the script area (check _export let name_
     and _export let value_
@@ -45,6 +48,7 @@ _./components/color-picker/single-color-editor.svelte_
 
 ```svelte
 <script lang="ts">
+  // We define props by exporting them on the script area
   export let name = "";
   export let value = 0;
 </script>
@@ -158,9 +162,9 @@ _./App.svelte_
 </main>
 ```
 
-And Let's give a try
+Let's give a try
 
-That was cool, specially if we come from a React background, buuut Svelte offers us another flavor more Vue style, and event dispatcher, let's give a try:
+That was cool, specially if we come from a React background, buuut Svelte offers us another flavor more in the Vue style, we can make use of an event dispatcher, let's give a try:
 
 In our child component we will instantiate a new event dispatcher (this must be
 called before the component is instantiated).
@@ -227,7 +231,7 @@ Let's give a try...
 
 > More info about typing component events: https://github.com/sveltejs/language-tools/blob/master/docs/preprocessors/typescript.md#typing-component-events
 
-Now a question may arise... what if I want to bubble up a dispatch event to an ancestor that is not direct, do I have to recreate a dispatcher per event? The answer is NO, Svelte offers a shortcut for this (on:Message, more info: https://svelte.dev/tutorial/event-forwarding):
+Now a question may arise... what if I want to bubble up a dispatch event to an ancestor that is not a direct ancestor, do I have to recreate a dispatcher per event? The answer is NO, Svelte offers a shortcut for this (on:Message, more info: https://svelte.dev/tutorial/event-forwarding):
 
 Let's keep on building our component, we got one slider for the red component, but we need two more, let's create a super component that will instantiate the three color components.
 
@@ -275,9 +279,9 @@ _./components/color-picker/color-editor.svelte_
 </style>
 ```
 
-Ok, good start... but what if we want to use the same dispatcher for all the single components? Let's add an extra params to the dispatcher payload in the single editor component:
+Ok, good start... but what if we want to use the same dispatcher for all the single components, we need to add an extra params to the dispatcher payload in the single editor component:
 
-This time we are going to use an elaborated payload with a name and value property, let's define it an interface:
+This time we are going to define an object payload that will include a name and a value property, let's define it in an interface:
 
 _./components/color-picker/model.ts_
 
@@ -313,7 +317,7 @@ _./components/color-picker/single-color-editor.svelte_
 />
 ```
 
-And in the main editor:
+And in the main editor component we will update the handler:
 
 _./src/components/color-picker/color-editor.svelte.ts_
 
@@ -394,7 +398,7 @@ _./src/app.svelte_
 </main>
 ```
 
-Not bad, values are display in each of the slider buuuut they changes are not reflected in the app component, we need to bubble up the event to the app component, in order to avoid creating an intermediate dispatcher on our color editor, we can take a shortcut, use event forwarding: https://svelte.dev/tutorial/event-forwarding
+Not bad, values are displayed in each of the slider buuuut the changes are not reflected in the app component, we need to bubble up the event to the app component, in order to avoid creating an intermediate dispatcher on our color editor, we can take a shortcut, use event forwarding: https://svelte.dev/tutorial/event-forwarding
 
 Let's go for that, we just simplify _color-editor_ we are going to delegate the _valueChange_ event handling to the parent component.
 
@@ -476,7 +480,9 @@ _./src/app.svelte_
 </main>
 ```
 
-> We have used single variables for each component just to show the forward event handling, we could encapsulate this values in an object (color={red, green, blue}) and get our code simpler, if you want to give a try it could be a good exercise to try it out.
+> Optional Excercise: We have used single variables for each component just to show the forward event handling, we could encapsulate this values in an object (color={red, green, blue}) and get our code simpler, if you want to give a try it could be a good exercise to try it out.
+
+Let's go for the final step:
 
 Now let's create a _color-display_ that will show the current color we are displaying (if you want you can try and take this as an excercise):
 
