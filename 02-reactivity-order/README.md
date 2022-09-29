@@ -2,12 +2,12 @@
 
 In this example we are going to cover some reactivity basic topics.
 
-We will simulate a simple order system, and we will calculate total, subtotal and tax.
+We will simulate a simple order system, and we will calculate the total, subtotal and taxes
+from a given order.
 
 # Step By Step Guide
 
-- We will take as starting point: _00-scratch-typescript_, let's copy the content of that folder and
-  execute
+- We will take as starting point: _00-scratch-typescript_, let's copy the content of that folder and execute it.
 
 ```bash
 npm install
@@ -61,8 +61,7 @@ _./src/components/orders/index.ts_
 export { default as OrderComponent } from "./order.svelte";
 ```
 
-And let's consume it in our _app_ file just to ensure that we have wired up the basics, we will just
-replace the whole content
+And let's consume it in our _app_ file just to ensure that we have wired up the basics, we will just replace the whole content
 
 _./src/app.svelte_
 
@@ -175,9 +174,9 @@ _./src/components/order.svelte_
 {/each}
 ```
 
-Not bad, in this case we just benefit from the binding two way, that's ok because we are on a local scope.
+Not bad, in this case we just benefit from the two way binding, that's ok because we are on a local scope.
 
-- Time to calculate the total amount for each item, easy pc (very similar to React in this case):
+- It's time to calculate the total amount for each item, easy pc (It's very similar to React in this case):
 
 _./src/components/order.svelte_
 
@@ -193,8 +192,7 @@ _./src/components/order.svelte_
 
 If you give a try you will check that the total is being calculated.
 
-- Now let's implement the delete button, we will use the _#on:click_ directive to remove the item from the list, in this case we have to take care, in order to notify svelte we need to make an assignment (we cannot just simple remove that item from array in a mutable way,
-  ... but there's some trick into it we cover it later on).
+- Now let's implement the delete button, we will use the _#on:click_ directive to remove the item from the list, in this case we have to take care, in order to get svelte notified we need to make an assignment (we cannot just simply remove that item from array in a mutable way, ... but there's some trick into it we cover it later on).
 
 _./src/components/order.svelte_
 
@@ -311,8 +309,7 @@ _./src/order.svelte_
 </styles>
 ```
 
-- Now comes the magic, using the _$:_ directive we are just indicating the app to reevaluate this assignment whenever any the
-  variables on the right side of the assignment are changed.
+- Now comes the magic, using the _$:_ directive we are just indicating the app to reevaluate this assignment whenever any the variables on the right side of the assignment are changed.
 
 _./src/order.svelte_
 
@@ -332,9 +329,9 @@ _./src/order.svelte_
 
 - Now we can start adding items and check
 
-If you run the app, you can see how we can update any item in the list (or add, remove) and automatically all the calcs are updated.
+If you run the app, you can see how we can update any item in the list (or add them, remove them..) and automatically all the calculation are updated.
 
-- Additional syntax sugar, we can remove the totals variables declarations:
+- Additional syntax sugar, we can get rid of the totals variables declarations:
 
 ```diff
 -  let subtotal = 0;
